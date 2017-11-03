@@ -1,0 +1,8 @@
+*.mktmp
+/client/coverage
+/client/doc
+/client/node_modules/
+/client/www/css/*.min.css
+/client/www/css/*.png
+/client/www/js/*
+/client/www/*.html

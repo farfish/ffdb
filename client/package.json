@@ -1,0 +1,38 @@
+{
+  "name": "ffdb",
+  "version": "0.1.0",
+  "description": "FFDB clientside code",
+  "homepage": "https://www.farfish.eu",
+  "dependencies": {
+    "bootstrap": "4.0.0-alpha.6",
+    "chosen-js": "^1.7.0",
+    "custom-event-polyfill": "^0.3.0",
+    "datatables.net": "^1.10.15",
+    "es6-promise": "^4.1.1",
+    "handsontable": "^0.34.5",
+    "jquery": "^3.2.1",
+    "papaparse": "^4.3.6",
+    "tape-promise": "^2.0.1",
+    "whatwg-fetch": "^2.0.3"
+  },
+  "maintainers": [
+    {
+      "name": "Jamie Lentin",
+      "email": "jamie.lentin@shuttlethread.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/farfish/ffdb"
+  },
+  "devDependencies": {
+    "browserify": "^14.4.0",
+    "cheerio": "^1.0.0-rc.2",
+    "exorcist": "^0.4.0",
+    "jslint": "^0.11.0",
+    "proxyquire": "^1.8.0",
+    "tape": "^4.8.0",
+    "uglifyify": "^4.0.3"
+  },
+  "license": "GPL-3.0"
+}
