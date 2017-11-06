@@ -6,6 +6,7 @@ NODE_PATH = node_modules
 NODE_CMD = NODE_PATH="$(NODE_PATH)" $(NODE)
 
 OUT_FILES = \
+    www/app.html \
     www/js/app.min.js \
     www/css/app.min.css \
     www/js/polyfill.min.js \
@@ -73,6 +74,10 @@ www/js/%.min.js: package.json %/*
 
 www/css/%.min.css: package.json %/css/*
 	cat $(basename $(basename $(notdir $@)))/css/* > $@.mktmp
+	mv $@.mktmp $@
+
+www/%.html: package.json %/css/*
+	cat $(basename $(basename $(notdir $@)))/index.html > $@.mktmp
 	mv $@.mktmp $@
 
 .PHONY: compile test lint clean
