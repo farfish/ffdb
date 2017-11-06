@@ -57,7 +57,7 @@ www/css/libraries.min.css: package.json
 	cat $(LIBRARIES_CSS) > $@.mktmp
 	mv $@.mktmp $@
 
-www/js/%.min.js: package.json $(basename $(basename $(notdir $@)))/*
+www/js/%.min.js: package.json %/*
 	mkdir -p www/js
 	(cd www/js && ln -sf ../../$(basename $(basename $(notdir $@))) .)
 	$(NODE_CMD) $(NODE_PATH)/browserify/bin/cmd.js --debug \
@@ -71,7 +71,7 @@ www/js/%.min.js: package.json $(basename $(basename $(notdir $@)))/*
 	    > $@.mktmp
 	mv $@.mktmp $@
 
-www/css/%.min.css: package.json $(basename $(basename $(notdir $@)))/css/*
+www/css/%.min.css: package.json %/css/*
 	cat $(basename $(basename $(notdir $@)))/css/* > $@.mktmp
 	mv $@.mktmp $@
 
