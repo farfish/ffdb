@@ -76,7 +76,7 @@ www/css/%.min.css: package.json %/css/*
 	cat $(basename $(basename $(notdir $@)))/css/* > $@.mktmp
 	mv $@.mktmp $@
 
-www/%.html: package.json %/css/*
+www/%.html: package.json %/*.html
 	cat $(basename $(basename $(notdir $@)))/index.html > $@.mktmp
 	mv $@.mktmp $@
 

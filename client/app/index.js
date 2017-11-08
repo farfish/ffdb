@@ -1,90 +1,301 @@
 "use strict";
-/*jslint todo: true, regexp: true, browser: true, unparam: true */
+/*jslint todo: true, regexp: true, browser: true, unparam: true, plusplus: true */
 /*global Promise */
 var Handsontable = require('handsontable');
 var Papa = require('papaparse');
 
-var dataObject = Papa.parse([
-    "Year,1998,1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,,",
-    "Catch,43457,33899,15.28,4941,48827,6864,5472,43884,35527,34005,18881,9924,18919,,",
-    "Abundance index,2211,1911,1955,1725,1.56,1424,1277,1.1,935,804,613,499,353,,",
-    "Duration t,13,,,,,,,,,,,,,,",
-    "Average catch over time t,23.03074512,,,,,,,,,,,,,,",
-    "Depletion over time t,0.180710371,,,,,,,,,,,,,,",
-    "M,0.13,,,,,,,,,,,,,,",
-    "FMSY/M,0.5,,,,,,,,,,,,,,",
-    "BMSY/B0,0.35,,,,,,,,,,,,,,",
-    "MSY,NA,,,,,,,,,,,,,,",
-    "BMSY,NA,,,,,,,,,,,,,,",
-    "Length at 50% maturity,84.13,,,,,,,,,,,,,,",
-    "Lenght at 95% maturity,110.03,,,,,,,,,,,,,,",
-    "Length at first capture,15.21,,,,,,,,,,,,,,",
-    "Length at full selection,60.21,,,,,,,,,,,,,,",
-    "CAA 2008,0,1,20,74,70,28,34,15,6,0,2,0,1,0,0",
-    "CAA 2009,0,0,19,74,66,41,24,9,2,0,1,0,0,0,0",
-    "CAA 2010,0,0,23,67,59,32,28,5,5,0,0,0,0,0,0",
-    "Current stock depletion,297,,,,,,,,,,,,,,",
-    "Current stock abundance,66465,,,,,,,,,,,,,,",
-    "Von Bertalanffy K parameter,168,,,,,,,,,,,,,,",
-    "Von Bertalanffy Linf parameter,155.23,,,,,,,,,,,,,,",
-    "Von Bertalanffy t0 parameter,-0.45,,,,,,,,,,,,,,",
-    "Length-weight parameter a,0.000006,,,,,,,,,,,,,,",
-    "Length-weight parameter b,3154,,,,,,,,,,,,,,",
-    "Steepness,513,,,,,,,,,,,,,,",
-    "Maximum age,15,,,,,,,,,,,,,,",
-    "CV Catch,0.2,,,,,,,,,,,,,,",
-    "CV Depletion over time t,221,,,,,,,,,,,,,,",
-    "CV Average catch over time t,221,,,,,,,,,,,,,,",
-    "CV Abundance index,362,,,,,,,,,,,,,,",
-    "CV M,0.4,,,,,,,,,,,,,,",
-    "CV FMSY/M,0.2,,,,,,,,,,,,,,",
-    "CV BMSY/B0,45,,,,,,,,,,,,,,",
-    "CV current stock depletion,0.35,,,,,,,,,,,,,,",
-    "CV current stock abundance,0.35,,,,,,,,,,,,,,",
-    "CV von B. K parameter,0.1,,,,,,,,,,,,,,",
-    "CV von B. Linf parameter,0.05,,,,,,,,,,,,,,",
-    "CV von B. t0 parameter,0.1,,,,,,,,,,,,,,",
-    "CV Length at 50% maturity,0.2,,,,,,,,,,,,,,",
-    "CV Length at first capture,0.2,,,,,,,,,,,,,,",
-    "CV Length at full selection,0.2,,,,,,,,,,,,,,",
-    "CV Length-weight parameter a,0.1,,,,,,,,,,,,,,",
-    "CV Length-weight parameter b,0.1,,,,,,,,,,,,,,",
-    "CV Steepness,0.1,,,,,,,,,,,,,,",
-    "Sigma length composition,0.2,,,,,,,,,,,,,,",
-    "Units,thousand tonnes,,,,,,,,,,,,,,",
-    "Reference OFL,NA,,,,,,,,,,,,,,",
-    "Reference OFL type,NA,,,,,,,,,,,,,,",
-    "CAL_bins,0,20,40,60,80,100,120,140,160,180,,,,,",
-    "CAL 1998,0,2,10,11,21,9,10,14,6,,,,,,",
-    "CAL 1999,0,1,25,19,11,19,11,8,6,,,,,,",
-    "CAL 2000,0,1,18,22,16,7,16,7,8,,,,,,",
-    "CAL 2001,0,2,21,9,12,11,10,9,5,,,,,,",
-    "CAL 2002,0,1,28,19,22,9,13,7,12,,,,,,",
-    "CAL 2003,0,1,15,25,20,18,12,9,8,,,,,,",
-    "CAL 2004,0,2,23,17,10,18,7,7,5,,,,,,",
-    "CAL 2005,0,2,27,25,17,8,12,2,3,,,,,,",
-    "CAL 2006,0,2,11,23,15,10,11,5,1,,,,,,",
-    "CAL 2007,0,1,17,25,17,14,11,6,2,,,,,,",
-    "CAL 2008,0,1,10,33,18,8,8,2,1,,,,,,",
-    "CAL 2009,0,2,29,42,8,12,6,5,0,,,,,,",
-    "CAL 2010,0,1,15,35,10,13,7,0,0,,,,,,",
-    "MPrec,NA,,,,,,,,,,,,,,",
-    "LHYear,2010,,,,,,,,,,,,,,",
-].join("\n"), {});
-console.log(dataObject);
+function sequence(min, max) {
+    var i, out = [];
 
-var colHeaders = dataObject.data.shift();
-colHeaders.shift();
-var rowHeaders = dataObject.data.map(function (row) {
-    return row.shift();
-});
+    if (min > max) {
+        throw new Error("Minimum (" + min + ") should be smaller than maximum (" + max + ")");
+    }
 
-var hot = new Handsontable(document.querySelector('#hot'), {
-    data: dataObject.data,
-    stretchH: 'all',
-    autoWrapRow: true,
-    maxRows: 22,
-    rowHeaders: rowHeaders,
-    rowHeaderWidth: 270,
-    colHeaders: colHeaders,
+    for (i = min; i <= max; i++) {
+        out.push(i);
+    }
+
+    return out;
+}
+
+var tableTemplate = [
+    {
+        name: "constants",
+        title: "Constants",
+        orientation: "vertical",
+        fields: {type: "list", values: [
+            "Duration t",  // i.e. number columns for templateCatch
+            "Average catch over time t", // Mean of catch
+            "Depletion over time t",
+            "M",
+            "FMSY/M",
+            "BMSY/B0",
+            "MSY",
+            "BMSY",
+            "Length at 50% maturity",
+            "Lenght at 95% maturity",
+            "Length at first capture",
+            "Length at full selection",
+            "Current stock depletion",
+            "Current stock abundance",
+            "Von Bertalanffy K parameter",
+            "Von Bertalanffy Linf parameter",
+            "Von Bertalanffy t0 parameter",
+            "Length-weight parameter a",
+            "Length-weight parameter b",
+            "Steepness",
+            "Maximum age",
+            "CV Catch",
+            "CV Depletion over time t",
+            "CV Average catch over time t",
+            "CV Abundance index",
+            "CV M",
+            "CV FMSY/M",
+            "CV BMSY/B0",
+            "CV current stock depletion",
+            "CV current stock abundance",
+            "CV von B. K parameter",
+            "CV von B. Linf parameter",
+            "CV von B. t0 parameter",
+            "CV Length at 50% maturity",
+            "CV Length at first capture",
+            "CV Length at full selection",
+            "CV Length-weight parameter a",
+            "CV Length-weight parameter b",
+            "CV Steepness",
+            "Sigma length composition",
+            "Units",
+            "Reference OFL",
+            "Reference OFL type",
+            "MPrec",
+            "LHYear",
+        ]},
+        values: {type: "list", values: ["Value"]},
+    },
+    {
+        name: "catch",
+        title: "Catch data",
+        orientation: "vertical",
+        fields: {type: "list", values: [
+            "Year",
+            "Catch",
+            "Abundance index",
+        ]},
+        values: {type: 'year', min: 2000, max: 2010},
+    },
+    {
+        name: "caa",
+        title: "Catch at age",
+        orientation: "horizontal",
+        fields: {type: "bins", count: 10},
+        values: {type: "year", min: 2000, max: 2010},
+    },
+    {
+        name: "cal",
+        title: "Catch at length",
+        orientation: "horizontal",
+        fields: {type: "bins", count: 10},
+        values: {type: "year", min: 2000, max: 2010},
+    },
+];
+
+function ListDimension(t) { this.values = t.values; }
+ListDimension.prototype.parameterHtml = function () { return ""; };
+ListDimension.prototype.headers = function () { return this.values; };
+ListDimension.prototype.minCount = function () { return this.values.length; };
+ListDimension.prototype.maxCount = function () { return this.values.length; };
+
+function YearDimension(t) {
+    this.min = t.min;
+    this.max = t.max;
+    this.overall_min = t.overall_min || 1900;
+    this.overall_max = t.overall_max || 2050;
+}
+YearDimension.prototype.parameterHtml = function () {
+    return [
+        '<label>Start year: <input type="number" name="year_start" min="' + this.overall_min + '" max="' + this.overall_max + '" step="1" value="' + this.min + '" /></label>',
+        '<label>End year: <input type="number" name="year_end" min="' + this.overall_min + '" max="' + this.overall_max + '" step="1" value="' + this.max + '" /></label>',
+    ].join("\n");
+};
+YearDimension.prototype.headers = function () { return sequence(this.min, this.max); };
+YearDimension.prototype.minCount = function () { return this.max - this.min; };
+YearDimension.prototype.maxCount = function () { return this.max - this.min; };
+YearDimension.prototype.update = function (paramEl, hot, e) {
+    var oldHeaders, newHeaders,
+        startEl = paramEl.querySelector("input[name=year_start]"),
+        endEl = paramEl.querySelector("input[name=year_end]");
+
+    // make sure other end of range is configured appropriately
+    if (e.target.id === startEl.id) {
+        endEl.min = startEl.value;
+        if (endEl.value < endEl.min) {
+            endEl.value = endEl.min;
+        }
+    } else if (e.target.id === endEl.id) {
+        startEl.max = endEl.value;
+        if (startEl.value > startEl.max) {
+            startEl.value = startEl.max;
+        }
+    }
+    this.min = parseInt(startEl.value, 10);
+    this.max = parseInt(endEl.value, 10);
+
+    // Work out which headers are missing
+    newHeaders = this.headers();
+
+    // Add/remove items to bottom until they line up
+    hot.updateSettings({
+        minCols: 0,
+        maxCols: newHeaders.length,
+    });
+    while (true) {
+        oldHeaders = hot.getColHeader();
+
+        if (oldHeaders[0] > newHeaders[0]) {
+            // Bottom is higher than we need, add one smaller
+            oldHeaders.unshift(oldHeaders[0] - 1);
+            hot.alter('insert_col', 0);
+        } else if (oldHeaders[0] < newHeaders[0]) {
+            // Bottom is smaller than we need, remove one
+            oldHeaders.shift();
+            hot.alter('remove_col', 0);
+        } else if (oldHeaders[oldHeaders.length - 1] < newHeaders[newHeaders.length - 1]) {
+            // Top is smaller than we need, add one
+            oldHeaders.push(oldHeaders[oldHeaders.length - 1] + 1);
+            hot.alter('insert_col', oldHeaders.length);
+        } else if (oldHeaders[oldHeaders.length - 1] > newHeaders[newHeaders.length - 1]) {
+            // Top is bigger than we need, remove one
+            oldHeaders.pop();
+            hot.alter('remove_col', oldHeaders.length);
+        } else {
+            // We're done
+            break;
+        }
+
+        hot.updateSettings({
+            colHeaders: oldHeaders,
+        });
+    }
+};
+
+function BinsDimension(t) {
+    this.count = t.count;
+    this.overall_max = t.overall_max || 1000;
+}
+BinsDimension.prototype.parameterHtml = function () {
+    return [
+        '<label>Bins: <input type="number" name="bin_count" min="0" max="' + this.overall_max + '" step="1" value="' + this.count + '" /></label>',
+    ].join("\n");
+};
+BinsDimension.prototype.headers = function () { return sequence(1, this.count); };
+BinsDimension.prototype.minCount = function () { return this.count; };
+BinsDimension.prototype.maxCount = function () { return this.count; };
+BinsDimension.prototype.update = function (paramEl, hot, e) {
+    var oldHeaders, newHeaders,
+        countEl = paramEl.querySelector("input[name=bin_count]");
+
+    this.count = parseInt(countEl.value, 10);
+
+    // Work out which headers are missing
+    newHeaders = this.headers();
+
+    // Add/remove items to bottom until they line up
+    hot.updateSettings({
+        minCols: 0,
+        maxCols: newHeaders.length,
+    });
+    while (true) {
+        oldHeaders = hot.getColHeader();
+
+        if (oldHeaders[0] > newHeaders[0]) {
+            // Bottom is higher than we need, add one smaller
+            oldHeaders.unshift(oldHeaders[0] - 1);
+            hot.alter('insert_col', 0);
+        } else if (oldHeaders[0] < newHeaders[0]) {
+            // Bottom is smaller than we need, remove one
+            oldHeaders.shift();
+            hot.alter('remove_col', 0);
+        } else if (oldHeaders[oldHeaders.length - 1] < newHeaders[newHeaders.length - 1]) {
+            // Top is smaller than we need, add one
+            oldHeaders.push(oldHeaders[oldHeaders.length - 1] + 1);
+            hot.alter('insert_col', oldHeaders.length);
+        } else if (oldHeaders[oldHeaders.length - 1] > newHeaders[newHeaders.length - 1]) {
+            // Top is bigger than we need, remove one
+            oldHeaders.pop();
+            hot.alter('remove_col', oldHeaders.length);
+        } else {
+            // We're done
+            break;
+        }
+
+        hot.updateSettings({
+            colHeaders: oldHeaders,
+        });
+    }
+};
+
+function get_dimension(t) {
+    return new ({
+        list: ListDimension,
+        year: YearDimension,
+        bins: BinsDimension,
+    }[t.type])(t);
+}
+
+var tbl = document.getElementById("tbl");
+
+tableTemplate.map(function (tmpl) {
+    var hot, cols, rows,
+        el = document.createElement("div");
+
+    tbl.appendChild(el);
+
+    cols = get_dimension(tmpl.orientation === 'horizontal' ? tmpl.fields : tmpl.values);
+    rows = get_dimension(tmpl.orientation === 'horizontal' ? tmpl.values : tmpl.fields);
+
+    el.innerHTML = [
+        '<h3>' + tmpl.title || tmpl.name + '</h3>',
+        '<div class="parameters">',
+        '<span class="cols">' + cols.parameterHtml() + '</span>',
+        '<span class="rows">' + rows.parameterHtml() + '</span>',
+        '</div>',
+        '<div class="hot"></div>',
+    ].join("\n");
+
+    hot = new Handsontable(el.querySelector('.hot'), {
+        stretchH: 'all',
+        autoWrapRow: true,
+        rowHeaders: rows.headers(),
+        rowHeaderWidth: 270,
+        minRows: rows.minCount(),
+        maxRows: rows.maxCount(),
+        colHeaders: cols.headers(),
+        minCols: cols.minCount(),
+        maxCols: cols.maxCount(),
+    });
+
+    el.querySelector(".parameters > .cols").addEventListener('change', function (e) {
+        cols.update(el.querySelector(".parameters > .cols"), hot, e);
+    });
+
+    el.querySelector(".parameters > .rows").addEventListener('change', function (e) {
+        rows.update(el.querySelector(".parameters > .rows"), {
+           // Return a fake hot object where we map col operations to row
+            updateSettings: function (settings) {
+                var newSettings = {};
+                Object.keys(settings).map(function (k) {
+                    newSettings[k.replace("Col", "Row").replace("col", "row")] = settings[k];
+                });
+                return hot.updateSettings(newSettings);
+            },
+            getColHeader: function () {
+                return hot.getRowHeader();
+            },
+            alter: function (cmd, x, y) {
+                return hot.alter(cmd.replace("_col", "_row"), x, y);
+            }
+        }, e);
+    });
+
+    return hot;
 });
