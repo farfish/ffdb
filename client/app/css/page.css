@@ -1,1 +1,9 @@
-//
+#tbl {
+    max-width: 960px;
+    margin: 1rem auto;
+}
+
+#tbl > * {
+    border-top: 1px solid #333;
+    padding-bottom: 1rem;
+}
