@@ -142,6 +142,7 @@ YearDimension.prototype.update = function (paramEl, hot, e) {
 
     // Work out which headers are missing
     newHeaders = this.headers();
+    oldHeaders = hot.getColHeader();
 
     // Add/remove items to bottom until they line up
     hot.updateSettings({
@@ -149,8 +150,6 @@ YearDimension.prototype.update = function (paramEl, hot, e) {
         maxCols: newHeaders.length,
     });
     while (true) {
-        oldHeaders = hot.getColHeader();
-
         if (oldHeaders[0] > newHeaders[0]) {
             // Bottom is higher than we need, add one smaller
             oldHeaders.unshift(oldHeaders[0] - 1);
