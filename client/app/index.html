@@ -10,20 +10,26 @@
 
     <title></title>
 
+    <link rel='stylesheet' id='avia-google-webfont' href='//fonts.googleapis.com/css?family=Open+Sans:400,600' type='text/css' media='all'/>
+    <link href="https://www.farfish.eu/wp-content/uploads/dynamic_avia/enfold.css?ver=59d6028a75d91" rel="stylesheet">
     <link href="/css/libraries.min.css" rel="stylesheet">
     <link href="/css/app.min.css" rel="stylesheet">
   </head>
 
   <body>
+    <img width="89" height="83" src="https://www.farfish.eu/wp-content/uploads/2017/08/FarFish-300x281.png" alt="farfish" style="float: left; margin-right: 1em;">
 
-    <h1>Woo</h1>
+    <h1>Farfish FFDB upload</h1>
 
-    Upload type: [dropdown, ]
-    Enter name [text box, or chosen dropdown if we can reveal existing files?]
-    Save
-    Export (exporting new file gets you a template)
-    Import
-    <hr/>
+    <ul id="options">
+      <li>Upload type: <select><option selected="selected">DLMtool</option></select>
+      File name: <input type="text" name="file_name"></li>
+      <li>
+        <button>Save</button>
+        <button>Export as spreadsheet</button>
+        <button>Import spreadsheet</button>
+      </li>
+    </ul>
 
     <div id="tbl"></div>
 

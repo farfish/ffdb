@@ -1,4 +1,7 @@
-#tbl {
+html {
+    background-color: transparent;
+}
+body {
     max-width: 960px;
     margin: 1rem auto;
 }
@@ -6,4 +9,9 @@
 #tbl > * {
     border-top: 1px solid #333;
     padding-bottom: 1rem;
+}
+
+#options li {
+    list-style-type: none;
+    margin-bottom: 0.3rem;
 }
