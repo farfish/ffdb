@@ -33,7 +33,7 @@ var tableTemplate = [
             "MSY",
             "BMSY",
             "Length at 50% maturity",
-            "Lenght at 95% maturity",
+            "Length at 95% maturity",
             "Length at first capture",
             "Length at full selection",
             "Current stock depletion",
