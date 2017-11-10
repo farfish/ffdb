@@ -71,17 +71,18 @@ var tableTemplate = [
             "LHYear",
         ]},
         values: {type: "list", values: ["Value"]},
+        params: {rowHeaderWidth: 270},
     },
     {
         name: "catch",
         title: "Catch data",
         orientation: "vertical",
         fields: {type: "list", values: [
-            "Year",
             "Catch",
             "Abundance index",
         ]},
         values: {type: 'year', min: 2000, max: 2010},
+        params: {rowHeaderWidth: 170},
     },
     {
         name: "caa",
@@ -244,7 +245,7 @@ function get_dimension(t) {
 var tbl = document.getElementById("tbl");
 
 tableTemplate.map(function (tmpl) {
-    var hot, cols, rows,
+    var hot, hotParams, cols, rows,
         el = document.createElement("div");
 
     tbl.appendChild(el);
@@ -253,7 +254,7 @@ tableTemplate.map(function (tmpl) {
     rows = get_dimension(tmpl.orientation === 'horizontal' ? tmpl.values : tmpl.fields);
 
     el.innerHTML = [
-        '<h3>' + tmpl.title || tmpl.name + '</h3>',
+        '<h3>' + (tmpl.title || tmpl.name) + '</h3>',
         '<div class="parameters">',
         '<span class="cols">' + cols.parameterHtml() + '</span>',
         '<span class="rows">' + rows.parameterHtml() + '</span>',
@@ -261,17 +262,16 @@ tableTemplate.map(function (tmpl) {
         '<div class="hot"></div>',
     ].join("\n");
 
-    hot = new Handsontable(el.querySelector('.hot'), {
-        stretchH: 'all',
-        autoWrapRow: true,
-        rowHeaders: rows.headers(),
-        rowHeaderWidth: 270,
-        minRows: rows.minCount(),
-        maxRows: rows.maxCount(),
-        colHeaders: cols.headers(),
-        minCols: cols.minCount(),
-        maxCols: cols.maxCount(),
-    });
+    hotParams = JSON.parse(JSON.stringify(tmpl.params || {}));
+    hotParams.stretchH = 'all';
+    hotParams.autoWrapRow = true;
+    hotParams.rowHeaders = rows.headers();
+    hotParams.minRows = rows.minCount();
+    hotParams.maxRows = rows.maxCount();
+    hotParams.colHeaders = cols.headers();
+    hotParams.minCols = cols.minCount();
+    hotParams.maxCols = cols.maxCount();
+    hot = new Handsontable(el.querySelector('.hot'), hotParams);
 
     el.querySelector(".parameters > .cols").addEventListener('change', function (e) {
         cols.update(el.querySelector(".parameters > .cols"), hot, e);
