@@ -96,7 +96,8 @@ var tableTemplate = [
         title: "Catch at length",
         orientation: "horizontal",
         fields: {type: "bins", count: 10},
-        values: {type: "year", min: 2000, max: 2010},
+        values: {type: "year", min: 2000, max: 2010, initial: ["Min Length"]},
+        params: {rowHeaderWidth: 100},
     },
 ];
 
@@ -109,6 +110,7 @@ ListDimension.prototype.maxCount = function () { return this.values.length; };
 function YearDimension(t) {
     this.min = t.min;
     this.max = t.max;
+    this.initial = t.initial || [];
     this.overall_min = t.overall_min || 1900;
     this.overall_max = t.overall_max || 2050;
 }
@@ -118,9 +120,9 @@ YearDimension.prototype.parameterHtml = function () {
         '<label>End year: <input type="number" name="year_end" min="' + this.overall_min + '" max="' + this.overall_max + '" step="1" value="' + this.max + '" /></label>',
     ].join("\n");
 };
-YearDimension.prototype.headers = function () { return sequence(this.min, this.max); };
-YearDimension.prototype.minCount = function () { return this.max - this.min; };
-YearDimension.prototype.maxCount = function () { return this.max - this.min; };
+YearDimension.prototype.headers = function () { return this.initial.concat(sequence(this.min, this.max)); };
+YearDimension.prototype.minCount = function () { return this.initial.length + this.max - this.min; };
+YearDimension.prototype.maxCount = function () { return this.initial.length + this.max - this.min; };
 YearDimension.prototype.update = function (paramEl, hot, e) {
     var oldHeaders, newHeaders,
         startEl = paramEl.querySelector("input[name=year_start]"),
@@ -147,18 +149,18 @@ YearDimension.prototype.update = function (paramEl, hot, e) {
 
     // Add/remove items to bottom until they line up
     hot.updateSettings({
-        minCols: 0,
+        minCols: this.initial.length,
         maxCols: newHeaders.length,
     });
     while (true) {
-        if (oldHeaders[0] > newHeaders[0]) {
+        if (oldHeaders[this.initial.length] > newHeaders[this.initial.length]) {
             // Bottom is higher than we need, add one smaller
-            oldHeaders.unshift(oldHeaders[0] - 1);
-            hot.alter('insert_col', 0);
-        } else if (oldHeaders[0] < newHeaders[0]) {
+            oldHeaders.splice(this.initial.length, 0, oldHeaders[this.initial.length] - 1);
+            hot.alter('insert_col', this.initial.length);
+        } else if (oldHeaders[this.initial.length] < newHeaders[this.initial.length]) {
             // Bottom is smaller than we need, remove one
-            oldHeaders.shift();
-            hot.alter('remove_col', 0);
+            oldHeaders.splice(this.initial.length, 1);
+            hot.alter('remove_col', this.initial.length);
         } else if (oldHeaders[oldHeaders.length - 1] < newHeaders[newHeaders.length - 1]) {
             // Top is smaller than we need, add one
             oldHeaders.push(oldHeaders[oldHeaders.length - 1] + 1);
