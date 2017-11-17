@@ -3,6 +3,8 @@
 /*global Promise */
 var Handsontable = require('handsontable');
 var Papa = require('papaparse');
+var jQuery = require('jquery/dist/jquery.slim.js');
+jQuery = require('select2')(jQuery);
 
 function sequence(min, max) {
     var i, out = [];
@@ -300,3 +302,5 @@ tableTemplate.map(function (tmpl) {
 
     return hot;
 });
+
+jQuery("select.select2").select2({tags: true});

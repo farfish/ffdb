@@ -12,6 +12,7 @@
     "handsontable": "^0.34.5",
     "jquery": "^3.2.1",
     "papaparse": "^4.3.6",
+    "select2": "^4.0.6-rc.0",
     "tape-promise": "^2.0.1",
     "whatwg-fetch": "^2.0.3"
   },

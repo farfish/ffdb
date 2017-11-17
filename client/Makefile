@@ -17,10 +17,12 @@ LIBRARIES_JS = \
     papaparse \
     handsontable \
     jquery/dist/jquery.slim.js \
+    select2 \
 
 LIBRARIES_CSS = \
     node_modules/bootstrap/dist/css/bootstrap-reboot.min.css \
     node_modules/handsontable/dist/handsontable.min.css \
+    node_modules/select2/dist/css/select2.min.css
 
 all: test lint compile
 
