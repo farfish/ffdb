@@ -14,10 +14,11 @@ OUT_FILES = \
     www/css/libraries.min.css \
 
 LIBRARIES_JS = \
-    papaparse \
+    file-saver \
     handsontable \
     jquery/dist/jquery.slim.js \
     select2 \
+    xlsx \
 
 LIBRARIES_CSS = \
     node_modules/bootstrap/dist/css/bootstrap-reboot.min.css \

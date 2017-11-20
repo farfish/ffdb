@@ -1,8 +1,9 @@
 "use strict";
-/*jslint todo: true, regexp: true, browser: true, unparam: true, plusplus: true */
-/*global Promise */
+/*jslint todo: true, regexp: true, browser: true, unparam: true, plusplus: true, bitwise: true */
+/*global Promise, Blob */
 var Handsontable = require('handsontable');
-var Papa = require('papaparse');
+var XLSX = require('xlsx');
+var FileSaver = require('file-saver');
 var jQuery = require('jquery/dist/jquery.slim.js');
 jQuery = require('select2')(jQuery);
 
@@ -248,7 +249,7 @@ function get_dimension(t) {
 
 var tbl = document.getElementById("tbl");
 
-tableTemplate.map(function (tmpl) {
+var hots = tableTemplate.map(function (tmpl) {
     var hot, hotParams, cols, rows,
         el = document.createElement("div");
 
@@ -301,6 +302,51 @@ tableTemplate.map(function (tmpl) {
     });
 
     return hot;
+});
+
+document.querySelector("#options button[name=export]").addEventListener('click', function (e) {
+    var wb = { SheetNames: [], Sheets: {} },
+        filename = document.querySelector("#options *[name=filename]").value;
+
+    function s2ab(s) {
+        var i,
+            buf = new window.ArrayBuffer(s.length),
+            view = new window.Uint8Array(buf);
+
+        for (i = 0; i < s.length; ++i) {
+            view[i] = s.charCodeAt(i) & 0xFF;
+        }
+
+        return buf;
+    }
+
+    if (!filename) {
+        window.alert("You must enter a filename in the box above");
+        return;
+    }
+
+    hots.map(function (hot, tableIndex) {
+        var i,
+            data = hot.getData(),
+            tmpl = tableTemplate[tableIndex],
+            rowHeaders = hot.getRowHeader();
+
+        // Add column header
+        data.unshift(hot.getColHeader());
+
+        // Add row headers
+        for (i = 0; i < data.length; i++) {
+            data[i].unshift(i > 0 ? rowHeaders[i - 1] : null);
+        }
+
+        wb.SheetNames.push(tmpl.name);
+        wb.Sheets[tmpl.name] = XLSX.utils.aoa_to_sheet(data);
+    });
+
+    FileSaver.saveAs(new Blob(
+        [s2ab(XLSX.write(wb, {bookType: 'xlsx', bookSST: true, type: 'binary'}))],
+        {type: "application/octet-stream"}
+    ), filename + ".xlsx");
 });
 
 jQuery("select.select2").select2({tags: true});
