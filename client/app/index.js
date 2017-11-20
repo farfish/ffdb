@@ -351,4 +351,20 @@ document.querySelector("#options button[name=export]").addEventListener('click',
     ), filename + ".xlsx");
 });
 
-jQuery("select.select2").select2({tags: true});
+jQuery("select.select2[name=template]").select2({});
+
+jQuery("select.select2[name=filename]").select2({
+    ajax: {
+        url: '/api/doc/dlmtool',
+        dataType: 'json',
+        processResults: function (data) {
+            return { results: data.documents.map(function(x) {
+                return {
+                    id: x[0],
+                    text: x[0] + " (v" + x[1] + ")",
+                };
+            }) };
+        },
+    },
+    tags: true,
+});
