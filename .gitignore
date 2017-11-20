@@ -19,4 +19,5 @@
 /server/share
 /server/.cache
 
+/.local-conf
 /ffdb.sqlite.*

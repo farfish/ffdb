@@ -1,0 +1,102 @@
+#!/bin/sh
+set -ex
+
+# This script will create a systemd unit for running the backend, and
+# an nginx config.
+#
+# It is tested on Debian, but should hopefully work on anything systemd-based.
+
+[ -e ".local-conf" ] && . ./.local-conf
+
+# ---------------------------
+# Config options, to override any of these, set them in .local.conf
+
+PROJECT_PATH="${PROJECT_PATH-$(dirname "$(readlink -f "$0")")}"
+SERVER_NAME="${SERVER_NAME-$(hostname --fqdn)}"
+SERVICE_NAME="${SERVICE_NAME-ffdb}"
+SERVICE_FILE="${SERVICE_FILE-/etc/systemd/system/${SERVICE_NAME}.service}"
+UWSGI_BIN="${UWSGI_BIN-${PROJECT_PATH}/server/bin/uwsgi}"
+UWSGI_USER="${UWSGI_USER-nobody}"
+UWSGI_GROUP="${UWSGI_GROUP-nogroup}"
+UWSGI_SOCKET="${UWSGI_SOCKET-/tmp/${SERVICE_NAME}_uwsgi.${SERVICE_MODE}.sock}"
+UWSGI_TIMEOUT="${UWSGI_TIMEOUT-5m}"
+UWSGI_PROCESSES="${UWSGI_PROCESSES-4}"
+UWSGI_THREADS="${UWSGI_THREADS-4}"
+UWSGI_API_CACHE_TIME="${UWSGI_API_CACHE_TIME-60m}"
+UWSGI_CACHE_SIZE="${UWSGI_CACHE_SIZE-1g}"
+[ "${SERVICE_MODE}" = "production" ] && UWSGI_CACHE_ZONE="${UWSGI_CACHE_ZONE-api_cache}" || UWSGI_CACHE_ZONE="${UWSGI_CACHE_ZONE-off}"
+GA_KEY="${GA_KEY-}"  # NB: This is used by the makefile also
+
+set | grep -E 'UWSGI|SERVICE'
+
+# ---------------------------
+# Systemd unit file to run uWSGI
+
+systemctl | grep -q "${SERVICE_NAME}.service" && systemctl stop ${SERVICE_NAME}.service
+cat <<EOF > ${SERVICE_FILE}
+[Unit]
+Description=uWSGI daemon for ${SERVICE_NAME}
+After=network.target
+
+[Service]
+ExecStart=${UWSGI_BIN} \
+    --master \
+    --processes=${UWSGI_PROCESSES} --threads=${UWSGI_THREADS} \
+    --enable-threads --thunder-lock \
+    --mount /=ffdb.web:app \
+    --chmod-socket=666 \
+    -s ${UWSGI_SOCKET}
+WorkingDirectory=${PROJECT_PATH}/server
+User=${UWSGI_USER}
+Group=${UWSGI_GROUP}
+Restart=on-failure
+RestartSec=5s
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+if [ "${SERVICE_MODE}" = "production" ]; then
+    [ -f "${UWSGI_SOCKET}" ] && chown ${UWSGI_USER}:${UWSGI_GROUP} "${UWSGI_SOCKET}"
+    systemctl enable ${SERVICE_NAME}.service
+    systemctl start ${SERVICE_NAME}.service
+else
+    systemctl disable ${SERVICE_NAME}.service
+    systemctl stop ${SERVICE_NAME}.service
+fi
+
+# ---------------------------
+# NGINX config for serving clientside
+
+cat <<EOF > /etc/nginx/sites-available/${SERVICE_NAME}
+upstream uwsgi_server {
+    server unix://${UWSGI_SOCKET};
+}
+
+server {
+    listen      80;
+    server_name ${SERVER_NAME};
+    charset     utf-8;
+    root "${PROJECT_PATH}/client/www";
+    gzip        on;
+
+    proxy_intercept_errors on;
+    error_page 502 503 504 /error/bad_gateway.json;
+
+    location /api {
+        include uwsgi_params;
+        uwsgi_pass  uwsgi_server;
+    }
+
+    location / {
+            try_files \$uri /app.html;
+    }
+}
+EOF
+ln -fs /etc/nginx/sites-available/${SERVICE_NAME} /etc/nginx/sites-enabled/${SERVICE_NAME}
+nginx -t
+systemctl reload nginx.service
