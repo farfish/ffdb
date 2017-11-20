@@ -306,6 +306,39 @@ var hots = tableTemplate.map(function (tmpl) {
     return hot;
 });
 
+document.querySelector("#options button[name=save]").addEventListener('click', function (e) {
+    var wb = { SheetNames: [], Sheets: {} },
+        filename = document.querySelector("#options *[name=filename]").value;
+
+    hots.map(function (hot, tableIndex) {
+        var i,
+            data = hot.getData(),
+            tmpl = tableTemplate[tableIndex],
+            rowHeaders = hot.getRowHeader();
+
+        // Add column header
+        data.unshift(hot.getColHeader());
+
+        // Add row headers
+        for (i = 0; i < data.length; i++) {
+            data[i].unshift(i > 0 ? rowHeaders[i - 1] : null);
+        }
+
+        wb.SheetNames.push(tmpl.name);
+        wb.Sheets[tmpl.name] = XLSX.utils.aoa_to_sheet(data);
+    });
+
+    window.fetch('/api/doc/dlmtool/' + encodeURIComponent(filename), {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(wb),
+    }).then(function (data) {
+        console.log("Saved");
+    });
+});
+
 document.querySelector("#options button[name=export]").addEventListener('click', function (e) {
     var wb = { SheetNames: [], Sheets: {} },
         filename = document.querySelector("#options *[name=filename]").value;
