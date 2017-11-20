@@ -27,6 +27,8 @@ var tableTemplate = [
         title: "Constants",
         orientation: "vertical",
         fields: {type: "list", values: [
+            "Data source type", // i.e. where the data came from TODO: vocab?
+            "Data source description",
             "Duration t",  // i.e. number columns for templateCatch
             "Average catch over time t", // Mean of catch
             "Depletion over time t",
