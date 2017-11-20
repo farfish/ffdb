@@ -13,6 +13,7 @@ set -ex
 
 PROJECT_PATH="${PROJECT_PATH-$(dirname "$(readlink -f "$0")")}"
 SERVER_NAME="${SERVER_NAME-$(hostname --fqdn)}"
+SERVER_CERT_PATH="${SERVER_CERT_PATH-}"  # e.g. /etc/nginx/ssl/certs
 SERVICE_NAME="${SERVICE_NAME-ffdb}"
 SERVICE_FILE="${SERVICE_FILE-/etc/systemd/system/${SERVICE_NAME}.service}"
 UWSGI_BIN="${UWSGI_BIN-${PROJECT_PATH}/server/bin/uwsgi}"
@@ -76,10 +77,49 @@ cat <<EOF > /etc/nginx/sites-available/${SERVICE_NAME}
 upstream uwsgi_server {
     server unix://${UWSGI_SOCKET};
 }
+EOF
 
+if [ -n "${SERVER_CERT_PATH}" ]; then
+    cat <<EOF >> /etc/nginx/sites-available/${SERVICE_NAME}
 server {
     listen      80;
     server_name ${SERVER_NAME};
+
+    location /.well-known/acme-challenge/ {
+        alias "${SERVER_CERT_PATH}/acme-challenge/";
+    }
+
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen [::]:443 ssl;
+    listen      443 ssl;
+    server_name ${SERVER_NAME};
+
+    ssl_certificate      ${SERVER_CERT_PATH}/${SERVER_NAME}/fullchain.pem;
+    ssl_certificate_key  ${SERVER_CERT_PATH}/${SERVER_NAME}/privkey.pem;
+    ssl_trusted_certificate ${SERVER_CERT_PATH}/${SERVER_NAME}/fullchain.pem;
+    ssl_dhparam ${SERVER_CERT_PATH}/dhparam.pem;
+
+    # https://mozilla.github.io/server-side-tls/ssl-config-generator/
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:50m;
+    # intermediate configuration. tweak to your needs.
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-R
+    ssl_prefer_server_ciphers on;
+
+EOF
+else
+    cat <<EOF >> /etc/nginx/sites-available/${SERVICE_NAME}
+server {
+    listen      80;
+    server_name ${SERVER_NAME};
+EOF
+fi
+
+cat <<EOF >> /etc/nginx/sites-available/${SERVICE_NAME}
     charset     utf-8;
     root "${PROJECT_PATH}/client/www";
     gzip        on;
