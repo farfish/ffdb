@@ -18,3 +18,5 @@
 /server/local
 /server/share
 /server/.cache
+
+/ffdb.sqlite.*
