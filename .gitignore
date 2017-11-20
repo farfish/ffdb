@@ -6,3 +6,15 @@
 /client/www/css/*.png
 /client/www/js/*
 /client/www/*.html
+
+*.pyc
+/server/*.egg-info/
+/server/pip-selfcheck.json
+/server/pyvenv.cfg
+/server/bin
+/server/include
+/server/lib
+/server/lib64
+/server/local
+/server/share
+/server/.cache
