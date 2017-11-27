@@ -9,62 +9,73 @@ var get_dimension = require('./dimensions.js').get_dimension;
 var table_templates = require('./templates.js').table_templates;
 jQuery = require('select2')(jQuery);
 
-var tbl = document.getElementById("tbl");
+var hots;
 
-var hots = table_templates.dlmtool.map(function (tmpl) {
-    var hot, hotParams, cols, rows,
-        el = document.createElement("div");
+/**
+  * Given a template name and input data.frame
+  * Generate handsontable objects
+  */
+function generate_hots(template_name, input_df) {
+    var tbl = document.getElementById("tbl"), out;
 
-    tbl.appendChild(el);
+    out = table_templates[template_name].map(function (tmpl) {
+        var hot, hotParams, cols, rows,
+            el = document.createElement("div");
 
-    cols = get_dimension(tmpl.orientation === 'horizontal' ? tmpl.fields : tmpl.values);
-    rows = get_dimension(tmpl.orientation === 'horizontal' ? tmpl.values : tmpl.fields);
+        tbl.appendChild(el);
 
-    el.innerHTML = [
-        '<h3>' + (tmpl.title || tmpl.name) + '</h3>',
-        '<div class="parameters">',
-        '<span class="cols">' + cols.parameterHtml() + '</span>',
-        '<span class="rows">' + rows.parameterHtml() + '</span>',
-        '</div>',
-        '<div class="hot"></div>',
-    ].join("\n");
+        cols = get_dimension(tmpl.orientation === 'horizontal' ? tmpl.fields : tmpl.values);
+        rows = get_dimension(tmpl.orientation === 'horizontal' ? tmpl.values : tmpl.fields);
 
-    hotParams = JSON.parse(JSON.stringify(tmpl.params || {}));
-    hotParams.stretchH = 'all';
-    hotParams.autoWrapRow = true;
-    hotParams.rowHeaders = rows.headers();
-    hotParams.minRows = rows.minCount();
-    hotParams.maxRows = rows.maxCount();
-    hotParams.colHeaders = cols.headers();
-    hotParams.minCols = cols.minCount();
-    hotParams.maxCols = cols.maxCount();
-    hot = new Handsontable(el.querySelector('.hot'), hotParams);
+        el.innerHTML = [
+            '<h3>' + (tmpl.title || tmpl.name) + '</h3>',
+            '<div class="parameters">',
+            '<span class="cols">' + cols.parameterHtml() + '</span>',
+            '<span class="rows">' + rows.parameterHtml() + '</span>',
+            '</div>',
+            '<div class="hot"></div>',
+        ].join("\n");
 
-    el.querySelector(".parameters > .cols").addEventListener('change', function (e) {
-        cols.update(el.querySelector(".parameters > .cols"), hot, e);
+        hotParams = JSON.parse(JSON.stringify(tmpl.params || {}));
+        hotParams.stretchH = 'all';
+        hotParams.autoWrapRow = true;
+        hotParams.rowHeaders = rows.headers();
+        hotParams.minRows = rows.minCount();
+        hotParams.maxRows = rows.maxCount();
+        hotParams.colHeaders = cols.headers();
+        hotParams.minCols = cols.minCount();
+        hotParams.maxCols = cols.maxCount();
+        hot = new Handsontable(el.querySelector('.hot'), hotParams);
+
+        el.querySelector(".parameters > .cols").addEventListener('change', function (e) {
+            cols.update(el.querySelector(".parameters > .cols"), hot, e);
+        });
+
+        el.querySelector(".parameters > .rows").addEventListener('change', function (e) {
+            rows.update(el.querySelector(".parameters > .rows"), {
+               // Return a fake hot object where we map col operations to row
+                updateSettings: function (settings) {
+                    var newSettings = {};
+                    Object.keys(settings).map(function (k) {
+                        newSettings[k.replace("Col", "Row").replace("col", "row")] = settings[k];
+                    });
+                    return hot.updateSettings(newSettings);
+                },
+                getColHeader: function () {
+                    return hot.getRowHeader();
+                },
+                alter: function (cmd, x, y) {
+                    return hot.alter(cmd.replace("_col", "_row"), x, y);
+                }
+            }, e);
+        });
+
+        return hot;
     });
 
-    el.querySelector(".parameters > .rows").addEventListener('change', function (e) {
-        rows.update(el.querySelector(".parameters > .rows"), {
-           // Return a fake hot object where we map col operations to row
-            updateSettings: function (settings) {
-                var newSettings = {};
-                Object.keys(settings).map(function (k) {
-                    newSettings[k.replace("Col", "Row").replace("col", "row")] = settings[k];
-                });
-                return hot.updateSettings(newSettings);
-            },
-            getColHeader: function () {
-                return hot.getRowHeader();
-            },
-            alter: function (cmd, x, y) {
-                return hot.alter(cmd.replace("_col", "_row"), x, y);
-            }
-        }, e);
-    });
-
-    return hot;
-});
+    out.tmpl = table_templates[template_name];
+    return out;
+}
 
 document.querySelector("#options button[name=save]").addEventListener('click', function (e) {
     var wb = { SheetNames: [], Sheets: {} },
@@ -124,7 +135,7 @@ document.querySelector("#options button[name=export]").addEventListener('click',
     hots.map(function (hot, tableIndex) {
         var i,
             data = hot.getData(),
-            tmpl = table_templates.dlmtool[tableIndex],
+            tmpl = hots.tmpl,
             rowHeaders = hot.getRowHeader();
 
         // Add column header
@@ -145,7 +156,11 @@ document.querySelector("#options button[name=export]").addEventListener('click',
     ), filename + ".xlsx");
 });
 
-jQuery("select.select2[name=template]").select2({});
+jQuery("select.select2[name=template]").select2({
+}).on('change', function (e) {
+    /* Re-generate tables based on selected template */
+    hots = generate_hots(e.target.value, {});
+}).trigger('change'); /* Generate initial tables on startup */
 
 jQuery("select.select2[name=filename]").select2({
     ajax: {
