@@ -1,5 +1,5 @@
 "use strict";
-/*jslint todo: true, regexp: true, browser: true, unparam: true, plusplus: true, bitwise: true */
+/*jslint todo: true, regexp: true, browser: true, unparam: true, plusplus: true, bitwise: true, nomen: true */
 /*global Promise, Blob */
 var Handsontable = require('handsontable');
 var XLSX = require('xlsx');
@@ -77,27 +77,45 @@ function generate_hots(template_name, input_df) {
     return out;
 }
 
+/**
+  * Save content. Turn it into a data.frame alike of:
+  * {
+  *     _headings: {
+  *         fields: [(field_name), (field_name), (field_name)],
+  *         values: [(value_name), ...],
+  *     }
+  *     field_name: [values....],
+  * }
+  */
 document.querySelector("#options button[name=save]").addEventListener('click', function (e) {
-    var wb = { SheetNames: [], Sheets: {} },
+    var sheets = {},
         filename = document.querySelector("#options *[name=filename]").value;
 
     hots.map(function (hot, tableIndex) {
         var i,
             data = hot.getData(),
-            tmpl = tableTemplate[tableIndex],
-            tmpl = table_templates.dlmtool[tableIndex],
-            rowHeaders = hot.getRowHeader();
+            tmpl = hots.tmpl[tableIndex],
+            out = { _headings: {} };
 
-        // Add column header
-        data.unshift(hot.getColHeader());
-
-        // Add row headers
-        for (i = 0; i < data.length; i++) {
-            data[i].unshift(i > 0 ? rowHeaders[i - 1] : null);
+        function return_ith_value(row) {
+            return row[i];
         }
 
-        wb.SheetNames.push(tmpl.name);
-        wb.Sheets[tmpl.name] = XLSX.utils.aoa_to_sheet(data);
+        out._headings.fields = get_dimension(tmpl.fields).headers();
+        out._headings.values = get_dimension(tmpl.values).headers();
+
+        // Turn table data into a data.frame-esque object of fields
+        for (i = 0; i < out._headings.fields.length; i++) {
+            if (tmpl.orientation === "vertical") {
+                // Map rows to values
+                out[out._headings.fields[i]] = data[i];
+            } else {
+                // Map columns to values
+                out[out._headings.fields[i]] = data.map(return_ith_value);
+            }
+        }
+
+        sheets[tmpl.name] = out;
     });
 
     window.fetch('/api/doc/dlmtool/' + encodeURIComponent(filename), {
@@ -105,7 +123,7 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(wb),
+        body: JSON.stringify(sheets),
     }).then(function (data) {
         console.log("Saved");
     });
