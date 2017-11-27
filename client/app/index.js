@@ -135,7 +135,7 @@ document.querySelector("#options button[name=export]").addEventListener('click',
     hots.map(function (hot, tableIndex) {
         var i,
             data = hot.getData(),
-            tmpl = hots.tmpl,
+            tmpl = hots.tmpl[tableIndex],
             rowHeaders = hot.getRowHeader();
 
         // Add column header
