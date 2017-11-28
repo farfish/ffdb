@@ -1,3 +1,6 @@
+all:
+	for dir in client server; do make -C $$dir $@; done
+
 compile:
 	for dir in client server; do make -C $$dir $@; done
 
@@ -7,4 +10,4 @@ test:
 start:
 	for dir in client server; do make -C $$dir $@; done
 
-.PHONY: compile start
+.PHONY: all compile start
