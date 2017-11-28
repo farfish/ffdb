@@ -35,8 +35,8 @@ YearDimension.prototype.parameterHtml = function () {
     ].join("\n");
 };
 YearDimension.prototype.headers = function () { return this.initial.concat(sequence(this.min, this.max)); };
-YearDimension.prototype.minCount = function () { return this.initial.length + this.max - this.min; };
-YearDimension.prototype.maxCount = function () { return this.initial.length + this.max - this.min; };
+YearDimension.prototype.minCount = function () { return this.initial.length + this.max - this.min + 1; };
+YearDimension.prototype.maxCount = function () { return this.initial.length + this.max - this.min + 1; };
 YearDimension.prototype.update = function (paramEl, hot, e) {
     var oldHeaders, newHeaders,
         startEl = paramEl.querySelector("input[name=year_start]"),
