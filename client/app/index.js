@@ -21,12 +21,15 @@ function generate_hots(template_name, input_df) {
     tbl.innerHTML = "";
     out = table_templates[template_name].map(function (tmpl) {
         var hot, hotParams, cols, rows,
+            customData = {},
             el = document.createElement("div");
 
         tbl.appendChild(el);
 
-        cols = get_dimension(tmpl.orientation === 'horizontal' ? tmpl.fields : tmpl.values);
-        rows = get_dimension(tmpl.orientation === 'horizontal' ? tmpl.values : tmpl.fields);
+        customData.fields = get_dimension(tmpl.fields, input_df._headings.fields);
+        customData.values = get_dimension(tmpl.values, input_df._headings.values);
+        cols = tmpl.orientation === 'vertical' ? customData.values : customData.fields;
+        rows = tmpl.orientation === 'vertical' ? customData.fields : customData.values;
 
         el.innerHTML = [
             '<h3>' + (tmpl.title || tmpl.name) + '</h3>',
@@ -47,6 +50,7 @@ function generate_hots(template_name, input_df) {
         hotParams.minCols = cols.minCount();
         hotParams.maxCols = cols.maxCount();
         hot = new Handsontable(el.querySelector('.hot'), hotParams);
+        hot.customData = customData;
 
         el.querySelector(".parameters > .cols").addEventListener('change', function (e) {
             cols.update(el.querySelector(".parameters > .cols"), hot, e);
@@ -102,8 +106,8 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
             return row[i];
         }
 
-        out._headings.fields = get_dimension(tmpl.fields).headers();
-        out._headings.values = get_dimension(tmpl.values).headers();
+        out._headings.fields = hot.customData.fields.headers();
+        out._headings.values = hot.customData.values.headers();
 
         // Turn table data into a data.frame-esque object of fields
         for (i = 0; i < out._headings.fields.length; i++) {
