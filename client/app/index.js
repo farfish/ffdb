@@ -18,6 +18,7 @@ var hots;
 function generate_hots(template_name, input_df) {
     var tbl = document.getElementById("tbl"), out;
 
+    tbl.innerHTML = "";
     out = table_templates[template_name].map(function (tmpl) {
         var hot, hotParams, cols, rows,
             el = document.createElement("div");
