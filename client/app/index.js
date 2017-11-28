@@ -7,6 +7,7 @@ var FileSaver = require('file-saver');
 var jQuery = require('jquery/dist/jquery.slim.js');
 var get_dimension = require('./dimensions.js').get_dimension;
 var table_templates = require('./templates.js').table_templates;
+var hot_utils = require('./hot_utils.js');
 jQuery = require('select2')(jQuery);
 
 var hots;
@@ -15,14 +16,15 @@ var hots;
   * Given a template name and input data.frame
   * Generate handsontable objects
   */
-function generate_hots(template_name, input_df) {
+function generate_hots(template_name, input_dfs) {
     var tbl = document.getElementById("tbl"), out;
 
     tbl.innerHTML = "";
     out = table_templates[template_name].map(function (tmpl) {
         var hot, hotParams, cols, rows,
             customData = {},
-            el = document.createElement("div");
+            el = document.createElement("div"),
+            input_df = input_dfs[tmpl.name] || { _headings: {}};
 
         tbl.appendChild(el);
 
@@ -49,6 +51,7 @@ function generate_hots(template_name, input_df) {
         hotParams.colHeaders = cols.headers();
         hotParams.minCols = cols.minCount();
         hotParams.maxCols = cols.maxCount();
+        hotParams.data = input_df._headings.fields ? hot_utils.df_to_aofa(input_df, customData.fields.headers(), customData.values.headers(), tmpl.orientation) : undefined;
         hot = new Handsontable(el.querySelector('.hot'), hotParams);
         hot.customData = customData;
 
@@ -131,6 +134,7 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
         body: JSON.stringify(sheets),
     }).then(function (data) {
         console.log("Saved");
+        //TODO: Trigger update of dropdown
     });
 });
 
@@ -199,4 +203,12 @@ jQuery("select.select2[name=filename]").select2({
         },
     },
     tags: true,
+}).on('change', function (e) {
+    window.fetch('/api/doc/dlmtool/' + encodeURIComponent(e.target.value), {
+        method: "GET",
+    }).then(function (response) {
+        return response.json();  //TODO: Error handling
+    }).then(function (data) {
+        hots = generate_hots(document.querySelector("select[name=template]").value, data.content);
+    });
 });

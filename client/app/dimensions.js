@@ -21,10 +21,16 @@ ListDimension.prototype.headers = function () { return this.values; };
 ListDimension.prototype.minCount = function () { return this.values.length; };
 ListDimension.prototype.maxCount = function () { return this.values.length; };
 
-function YearDimension(t) {
-    this.min = t.min;
-    this.max = t.max;
+function YearDimension(t, init_headings) {
+    var numeric_headings = (init_headings || []).map(function (x) { return parseInt(x, 10); });
+
     this.initial = t.initial || [];
+    if (this.initial.length > 0) {
+        //TODO: Can we trust the initial items to always be there? Bit dodgy
+        numeric_headings.splice(0, this.initial.length);
+    }
+    this.min = numeric_headings.length > 0 ? Math.min.apply(null, numeric_headings) : t.min;
+    this.max = numeric_headings.length > 0 ? Math.max.apply(null, numeric_headings) : t.max;
     this.overall_min = t.overall_min || 1900;
     this.overall_max = t.overall_max || 2050;
 }
@@ -94,8 +100,8 @@ YearDimension.prototype.update = function (paramEl, hot, e) {
     }
 };
 
-function BinsDimension(t) {
-    this.count = t.count;
+function BinsDimension(t, init_headings) {
+    this.count = init_headings ? init_headings.length : t.count;
     this.overall_max = t.overall_max || 1000;
 }
 BinsDimension.prototype.parameterHtml = function () {
@@ -150,11 +156,11 @@ BinsDimension.prototype.update = function (paramEl, hot, e) {
     }
 };
 
-function get_dimension(t) {
+function get_dimension(t, init_headings) {
     return new ({
         list: ListDimension,
         year: YearDimension,
         bins: BinsDimension,
-    }[t.type])(t);
+    }[t.type])(t, init_headings);
 }
 module.exports.get_dimension = get_dimension;
