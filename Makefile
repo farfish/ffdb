@@ -10,4 +10,7 @@ test:
 start:
 	for dir in client server; do make -C $$dir $@; done
 
-.PHONY: all compile start
+clean:
+	for dir in client server; do make -C $$dir $@; done
+
+.PHONY: all compile clean

@@ -25,7 +25,8 @@ start: lib/.requirements test
 
 clean:
 	rm -rf -- ./bin ./include ./lib ./local ./share
-	find ./$(PROJECT) -name '*.pyc' -exec rm -- {} \;
+	find . -name '*.pyc' -exec rm -- {} \;
+	find . -name '__pycache__' -exec rm -r -- {} \;
 
 test: lib/.requirements
 	./bin/py.test tests/
