@@ -9,6 +9,8 @@ var get_dimension = require('./dimensions.js').get_dimension;
 var table_templates = require('./templates.js').table_templates;
 var hot_utils = require('./hot_utils.js');
 var selectize = require('selectize');
+var alert = require('alerts');
+alert.transitionTime = 300;
 
 var hots;
 
@@ -133,8 +135,7 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
         },
         body: JSON.stringify(sheets),
     }).then(function (data) {
-        console.log("Saved");
-        //TODO: Trigger update of dropdown
+        alert("Saved", { className: "success", timeout: 3000 });
     });
 });
 
@@ -204,6 +205,8 @@ jQuery("select[name=filename]").selectize({
                     text: x[0] + " (v" + x[1] + ")",
                 };
             }));
+        }).catch(function (err) {
+            alert(err, {className: "error"});
         });
     },
     create: true,
@@ -211,8 +214,10 @@ jQuery("select[name=filename]").selectize({
     window.fetch('/api/doc/dlmtool/' + encodeURIComponent(e.target.value), {
         method: "GET",
     }).then(function (response) {
-        return response.json();  //TODO: Error handling
+        return response.json();
     }).then(function (data) {
         hots = generate_hots(document.querySelector("select[name=template]").value, data.content);
+    }).catch(function (err) {
+        alert(err, {className: "error"});
     });
 });
