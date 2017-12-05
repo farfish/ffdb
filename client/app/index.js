@@ -184,11 +184,7 @@ document.querySelector("#options button[name=export]").addEventListener('click',
     ), filename + ".xlsx");
 });
 
-jQuery("select[name=template]").selectize({
-}).on('change', function (e) {
-    /* Re-generate tables based on selected template */
-    hots = generate_hots(e.target.value, {});
-}).trigger('change'); /* Generate initial tables on startup */
+jQuery("select[name=template]").selectize({});
 
 jQuery("select[name=filename]").selectize({
     preload: true,
@@ -214,6 +210,10 @@ jQuery("select[name=filename]").selectize({
     window.fetch('/api/doc/dlmtool/' + encodeURIComponent(e.target.value), {
         method: "GET",
     }).then(function (response) {
+        if (response.status === 404) {
+            // We're starting a new document
+            return {content: {}};
+        }
         return response.json();
     }).then(function (data) {
         hots = generate_hots(document.querySelector("select[name=template]").value, data.content);
