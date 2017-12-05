@@ -1,6 +1,7 @@
 import json
 import os.path
 import sqlite3
+from werkzeug.exceptions import NotFound
 
 
 RDB_VERSION = 1
@@ -78,7 +79,7 @@ class DB():
             ORDER BY version DESC
         ''', (template_id, document_id)).fetchone()
         if x is None:
-            raise ValueError("Not found: %s/%s" % (template_id, document_id))
+            raise NotFound("%s/%s" % (template_id, document_id))
         version, content_string = x
 
         return dict(
