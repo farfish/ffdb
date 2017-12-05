@@ -24,7 +24,7 @@ function generate_hots(template_name, input_dfs) {
         var hot, hotParams, cols, rows,
             customData = {},
             el = document.createElement("div"),
-            input_df = input_dfs[tmpl.name] || { _headings: {}};
+            input_df = (input_dfs || {})[tmpl.name] || { _headings: {}};
 
         tbl.appendChild(el);
 
