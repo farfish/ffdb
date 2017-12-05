@@ -16,14 +16,14 @@ OUT_FILES = \
 LIBRARIES_JS = \
     file-saver \
     handsontable \
-    jquery/dist/jquery.slim.js \
-    select2 \
+    jquery \
+    selectize \
     xlsx \
 
 LIBRARIES_CSS = \
     node_modules/bootstrap/dist/css/bootstrap-reboot.min.css \
     node_modules/handsontable/dist/handsontable.min.css \
-    node_modules/select2/dist/css/select2.min.css
+    node_modules/selectize/dist/css/selectize.default.css
 
 all: test lint compile
 

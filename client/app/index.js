@@ -4,11 +4,11 @@
 var Handsontable = require('handsontable');
 var XLSX = require('xlsx');
 var FileSaver = require('file-saver');
-var jQuery = require('jquery/dist/jquery.slim.js');
+var jQuery = require('jquery');
 var get_dimension = require('./dimensions.js').get_dimension;
 var table_templates = require('./templates.js').table_templates;
 var hot_utils = require('./hot_utils.js');
-jQuery = require('select2')(jQuery);
+var selectize = require('selectize');
 
 var hots;
 
@@ -183,26 +183,30 @@ document.querySelector("#options button[name=export]").addEventListener('click',
     ), filename + ".xlsx");
 });
 
-jQuery("select.select2[name=template]").select2({
+jQuery("select[name=template]").selectize({
 }).on('change', function (e) {
     /* Re-generate tables based on selected template */
     hots = generate_hots(e.target.value, {});
 }).trigger('change'); /* Generate initial tables on startup */
 
-jQuery("select.select2[name=filename]").select2({
-    ajax: {
-        url: '/api/doc/dlmtool',
-        dataType: 'json',
-        processResults: function (data) {
-            return { results: data.documents.map(function (x) {
+jQuery("select[name=filename]").selectize({
+    preload: true,
+    loadThrottle: null,
+    load: function (query, callback) {
+        return window.fetch('/api/doc/dlmtool', {
+            method: "GET",
+        }).then(function (response) {
+            return response.json();  //TODO: Error handling
+        }).then(function (data) {
+            callback(data.documents.map(function (x) {
                 return {
-                    id: x[0],
+                    value: x[0],
                     text: x[0] + " (v" + x[1] + ")",
                 };
-            }) };
-        },
+            }));
+        });
     },
-    tags: true,
+    create: true,
 }).on('change', function (e) {
     window.fetch('/api/doc/dlmtool/' + encodeURIComponent(e.target.value), {
         method: "GET",
