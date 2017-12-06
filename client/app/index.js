@@ -3,6 +3,7 @@
 /*global Promise, Blob */
 var Handsontable = require('handsontable');
 var XLSX = require('xlsx');
+var file_loader = require('./file_loader.js');
 var FileSaver = require('file-saver');
 var jQuery = require('jquery');
 var get_dimension = require('./dimensions.js').get_dimension;
@@ -182,6 +183,24 @@ document.querySelector("#options button[name=export]").addEventListener('click',
         [s2ab(XLSX.write(wb, {bookType: 'xlsx', bookSST: true, type: 'binary'}))],
         {type: "application/octet-stream"}
     ), filename + ".xlsx");
+});
+
+document.querySelector("#options button[name=import]").addEventListener('click', function (e) {
+    file_loader('import-csv', 'array', function (data) {
+        var workbook = XLSX.read(new window.Uint8Array(data), {type: 'array'});
+        console.log(workbook);
+
+        hots.map(function (hot, tableIndex) {
+            var aoa,
+                tmpl = hots.tmpl[tableIndex],
+                sheet = workbook.Sheets[tmpl.name];
+
+            if (!sheet) {
+                return;
+            }
+            aoa = XLSX.utils.sheet_to_json(sheet, {header: 1});
+        });
+    });
 });
 
 jQuery("select[name=template]").selectize({});
