@@ -29,3 +29,32 @@ test('df_to_aofa', function (t) {
 
     t.end();
 });
+
+test('aofa_to_df', function (t) {
+    t.deepEqual(hot_utils.aofa_to_df([
+        [null, 'a', 'b', 'c'],
+        [   1,  11,  12,  13],
+        [   2,  21,  22,  23],
+        [   3,  31,  32,  33],
+    ], "vertical"), {
+        _headings: { fields: [ 1, 2, 3 ], values: [ 'a', 'b', 'c' ] },
+        1: [ 11, 12, 13 ],
+        2: [ 21, 22, 23 ],
+        3: [ 31, 32, 33 ],
+    }, "Converted to vertical df");
+
+    t.deepEqual(hot_utils.aofa_to_df([
+        [null, 'a', 'b', 'c'],
+        [   1,  11,  12,  13],
+        [   2,  21,  22,  23],
+        [   3,  31,  32,  33],
+    ], "horizontal"), {
+        _headings: { fields: [ 'a', 'b', 'c' ], values: [ 1, 2, 3 ] },
+        a: [ 11, 21, 31 ],
+        b: [ 12, 22, 32 ],
+        c: [ 13, 23, 33 ]
+    }, "Converted to vertical df");
+
+
+    t.end();
+});

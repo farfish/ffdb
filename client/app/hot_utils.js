@@ -50,3 +50,26 @@ function df_to_aofa(df, field_headings, value_headings, orientation) {
     return out;
 }
 module.exports.df_to_aofa = df_to_aofa;
+
+function aofa_to_df(aoa, orientation) {
+    var i, out = { _headings: { fields: [] } };
+
+    // Rotate if required
+    if (orientation !== 'vertical') {
+        aoa = rotate(aoa);
+    }
+
+    // First row should be value headings
+    out._headings.values = aoa.shift();
+    out._headings.values.shift();
+    out._headings.fields = [];
+
+    // Rest should map to columns
+    for (i = 0; i < aoa.length; i++) {
+        out._headings.fields.push(aoa[i][0]);
+        out[aoa[i][0]] = aoa[i].slice(1);
+    }
+
+    return out;
+}
+module.exports.aofa_to_df = aofa_to_df;

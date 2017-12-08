@@ -9,7 +9,7 @@ function sequence(min, max) {
     }
 
     for (i = min; i <= max; i++) {
-        out.push(i);
+        out.push(i.toString());
     }
 
     return out;

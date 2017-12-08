@@ -187,19 +187,23 @@ document.querySelector("#options button[name=export]").addEventListener('click',
 
 document.querySelector("#options button[name=import]").addEventListener('click', function (e) {
     file_loader('import-csv', 'array', function (data) {
-        var workbook = XLSX.read(new window.Uint8Array(data), {type: 'array'});
-        console.log(workbook);
+        var data_dfs = {},
+            workbook = XLSX.read(new window.Uint8Array(data), {type: 'array'});
 
         hots.map(function (hot, tableIndex) {
-            var aoa,
-                tmpl = hots.tmpl[tableIndex],
+            var tmpl = hots.tmpl[tableIndex],
                 sheet = workbook.Sheets[tmpl.name];
 
             if (!sheet) {
                 return;
             }
-            aoa = XLSX.utils.sheet_to_json(sheet, {header: 1});
+
+            // Convert sheet -> aoa -> df
+            data_dfs[tmpl.name] = hot_utils.aofa_to_df(XLSX.utils.sheet_to_json(sheet, {header: 1}), tmpl.orientation);
         });
+
+        // Replace tables with new data
+        hots = generate_hots(document.querySelector("select[name=template]").value, data_dfs);
     });
 });
 
