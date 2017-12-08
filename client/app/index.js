@@ -84,6 +84,9 @@ function generate_hots(template_name, input_dfs) {
         return hot;
     });
 
+    jQuery('#buttons').show();
+    jQuery('p.instructions').show();
+
     out.tmpl = table_templates[template_name];
     return out;
 }
