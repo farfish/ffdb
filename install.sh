@@ -16,6 +16,7 @@ SERVER_NAME="${SERVER_NAME-$(hostname --fqdn)}"
 SERVER_CERT_PATH="${SERVER_CERT_PATH-}"  # e.g. /etc/nginx/ssl/certs
 SERVICE_NAME="${SERVICE_NAME-ffdb}"
 SERVICE_FILE="${SERVICE_FILE-/etc/systemd/system/${SERVICE_NAME}.service}"
+NGINX_WP_SITE=""
 UWSGI_BIN="${UWSGI_BIN-${PROJECT_PATH}/server/bin/uwsgi}"
 UWSGI_USER="${UWSGI_USER-nobody}"
 UWSGI_GROUP="${UWSGI_GROUP-nogroup}"
@@ -73,6 +74,12 @@ fi
 # ---------------------------
 # NGINX config for serving clientside
 
+# If a wordpress site is defined, only serve pages if there's a cookie
+[ -n "${NGINX_WP_SITE}" ] && NGINX_LOGIN_COND="
+        if (\$http_cookie !~* \"wordpress_logged_in_[^=]*=([^%]+)%7C\") {
+            rewrite ^ https://${NGINX_WP_SITE}/login/ last;
+        }"
+
 cat <<EOF > /etc/nginx/sites-available/${SERVICE_NAME}
 upstream uwsgi_server {
     server unix://${UWSGI_SOCKET};
@@ -128,12 +135,14 @@ cat <<EOF >> /etc/nginx/sites-available/${SERVICE_NAME}
     error_page 502 503 504 /error/bad_gateway.json;
 
     location /api {
+        ${NGINX_LOGIN_COND}
         include uwsgi_params;
         uwsgi_pass  uwsgi_server;
     }
 
     location / {
-            try_files \$uri /app.html;
+        ${NGINX_LOGIN_COND}
+        try_files \$uri /app.html;
     }
 }
 EOF
