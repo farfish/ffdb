@@ -9,6 +9,7 @@ DEFAULT_RDB_FILE = os.path.join(
     os.path.dirname(__file__),
     '..',  # /server/
     '..',  # /
+    'db',
     'ffdb.sqlite.%d' % RDB_VERSION,
 )
 

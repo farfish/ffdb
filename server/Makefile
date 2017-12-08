@@ -13,7 +13,11 @@ lib/.requirements: requirements.txt \
 	./bin/pip install -r requirements.txt
 	touch lib/.requirements
 
-start: lib/.requirements test
+../db/ffdb.sqlite.%: lib/.requirements
+	mkdir -p ../db/
+	./bin/update_rdb
+
+start: lib/.requirements test ../db/ffdb.sqlite.1
 	./bin/uwsgi \
 	    --master \
 	    --processes=1 --threads=1 \
