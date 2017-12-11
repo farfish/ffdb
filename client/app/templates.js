@@ -2,6 +2,9 @@
 
 var dlmtool = [
     {
+        text: "<p>Please fill the form with all tha data available for your stock, if you are not sure about the value of some category please leave the field blank.</p><p>Based on DLMtool package (Tom Carruthers and Adrian Hordyk (2016). DLMtool: Data-Limited Methods Toolkit. R package version 3.1. <a href=\"https://CRAN.R-project.org/package=DLMtool\">https://CRAN.R-project.org/package=DLMtool</a>).</p>"
+    },
+    {
         name: "constants",
         title: "Constants",
         orientation: "vertical",

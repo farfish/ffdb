@@ -31,6 +31,11 @@ function generate_hots(template_name, input_dfs) {
 
         tbl.appendChild(el);
 
+        if (tmpl.text) {
+            el.innerHTML = tmpl.text;
+            return null;
+        }
+
         customData.fields = get_dimension(tmpl.fields, input_df._headings.fields);
         customData.values = get_dimension(tmpl.values, input_df._headings.values);
         cols = tmpl.orientation === 'vertical' ? customData.values : customData.fields;
@@ -85,7 +90,6 @@ function generate_hots(template_name, input_dfs) {
     });
 
     jQuery('#buttons').show();
-    jQuery('p.instructions').show();
 
     out.tmpl = table_templates[template_name];
     return out;
@@ -107,13 +111,19 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
 
     hots.map(function (hot, tableIndex) {
         var i,
-            data = hot.getData(),
+            data,
             tmpl = hots.tmpl[tableIndex],
             out = { _headings: {} };
 
         function return_ith_value(row) {
             return row[i];
         }
+
+        if (!tmpl.name) {
+            // Ignore informational blocks
+            return;
+        }
+        data = hot.getData();
 
         out._headings.fields = hot.customData.fields.headers();
         out._headings.values = hot.customData.values.headers();
@@ -166,9 +176,16 @@ document.querySelector("#options button[name=export]").addEventListener('click',
 
     hots.map(function (hot, tableIndex) {
         var i,
-            data = hot.getData(),
-            tmpl = hots.tmpl[tableIndex],
-            rowHeaders = hot.getRowHeader();
+            data,
+            rowHeaders,
+            tmpl = hots.tmpl[tableIndex];
+
+        if (!tmpl.name) {
+            // Ignore informational blocks
+            return;
+        }
+        data = hot.getData();
+        rowHeaders = hot.getRowHeader();
 
         // Add column header
         data.unshift(hot.getColHeader());
@@ -229,6 +246,7 @@ jQuery("select[name=filename]").selectize({
             }));
         }).catch(function (err) {
             alert(err, {className: "error"});
+            throw err;
         });
     },
     create: true,
@@ -245,5 +263,6 @@ jQuery("select[name=filename]").selectize({
         hots = generate_hots(document.querySelector("select[name=template]").value, data.content);
     }).catch(function (err) {
         alert(err, {className: "error"});
+        throw err;
     });
 });
