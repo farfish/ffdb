@@ -35,7 +35,7 @@
     "exorcist": "^0.4.0",
     "jslint": "^0.11.0",
     "proxyquire": "^1.8.0",
-    "tape": "^4.8.0",
+    "tape": "^4.9.0",
     "uglifyify": "^4.0.3"
   },
   "license": "GPL-3.0"
