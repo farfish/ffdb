@@ -1,6 +1,7 @@
 import unittest
 
-from ffdb.db import DB
+import ffdb.db as db
+
 
 class TestDB(unittest.TestCase):
     def test_moo(self):

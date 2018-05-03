@@ -17,6 +17,10 @@ SERVER_CERT_PATH="${SERVER_CERT_PATH-}"  # e.g. /etc/nginx/ssl/certs
 SERVICE_NAME="${SERVICE_NAME-ffdb}"
 SERVICE_FILE="${SERVICE_FILE-/etc/systemd/system/${SERVICE_NAME}.service}"
 NGINX_WP_SITE="${NGINX_WP_SITE-}"
+DB_SUDO_USER="${DB_SUDO_USER-postgres}"  # The user that has root access to DB
+DB_NAME="${DB_NAME-${SERVICE_NAME}_db}"  # The DB to create
+DB_USER="${DB_USER-${SERVICE_NAME}_user}"  # The credentials that the app will use
+DB_PASS="${DB_PASS-${SERVICE_NAME}_pass}"  # The credentials that the app will use
 UWSGI_BIN="${UWSGI_BIN-${PROJECT_PATH}/server/bin/uwsgi}"
 UWSGI_USER="${UWSGI_USER-nobody}"
 UWSGI_GROUP="${UWSGI_GROUP-nogroup}"
@@ -30,6 +34,10 @@ UWSGI_CACHE_SIZE="${UWSGI_CACHE_SIZE-1g}"
 GA_KEY="${GA_KEY-}"  # NB: This is used by the makefile also
 
 set | grep -E 'UWSGI|SERVICE'
+
+# ---------------------------
+# (re)create postgresql datbase
+(cd schema && sudo -u "${DB_SUDO_USER}" ./rebuild.sh "${DB_NAME}" "${DB_USER}" "${DB_PASS}"; ) || exit 1
 
 # ---------------------------
 # Systemd unit file to run uWSGI

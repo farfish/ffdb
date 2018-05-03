@@ -1,31 +1,34 @@
-from flask import Flask, request, Response, jsonify, g
+import os
 
-from .db import DB
+from flask import Flask, request, Response, jsonify, g, current_app
 
-def db():
-    if not getattr(g, '_db', None):
-        g._db = DB()
-    return g._db
+import ffdb.db as db
 
 app = Flask(__name__)
 
-@app.teardown_appcontext
-def close_db(exception):
-    if getattr(g, 'clicdb', None):
-        g.clicdb.close()
+@app.before_first_request
+def create_db():
+    if not os.environ.get('DB_DSN', None):
+        os.environ['DB_DSN'] = 'host=127.0.0.1 dbname=ffdb_db user=ffdb_user password=ffdb_pass'
+    app.pool = db.create_pool(os.environ['DB_DSN'])
 
+@app.route('/api/doc/<template_name>', methods=['GET'])
+def list_documents(template_name):
+    with current_app.pool.acquire() as connection:
+        with connection.cursor() as cursor:
+            return jsonify(documents=db.list_documents(cursor, template_name))
 
-@app.route('/api/doc/<template_id>', methods=['GET'])
-def list_documents(template_id):
-    return jsonify(documents=list(db().list_documents(template_id)))
+@app.route('/api/doc/<template_name>/<document_name>', methods=['GET'])
+def get_document(template_name, document_name):
+    with current_app.pool.acquire() as connection:
+        with connection.cursor() as cursor:
+            return jsonify(db.get_document(cursor, template_name, document_name))
 
-@app.route('/api/doc/<template_id>/<document_id>', methods=['GET'])
-def get_document(template_id, document_id):
-    return jsonify(db().get_document(template_id, document_id))
-
-@app.route('/api/doc/<template_id>/<document_id>', methods=['PUT'])
-def store_document(template_id, document_id):
-    return jsonify(db().store_document(template_id, document_id, request.json))
+@app.route('/api/doc/<template_name>/<document_name>', methods=['PUT'])
+def store_document(template_name, document_name):
+    with current_app.pool.acquire() as connection:
+        with connection.cursor() as cursor:
+            return jsonify(db.store_document(cursor, template_name, document_name, request.json))
 
 # ==== Error handlers =====================================
 def format_error(e):

@@ -240,8 +240,8 @@ jQuery("select[name=filename]").selectize({
         }).then(function (data) {
             callback(data.documents.map(function (x) {
                 return {
-                    value: x[0],
-                    text: x[0] + " (v" + x[1] + ")",
+                    value: x.document_name,
+                    text: x.document_name + " (v" + x.latest + ")",
                 };
             }));
         }).catch(function (err) {
