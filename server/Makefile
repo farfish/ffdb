@@ -1,6 +1,6 @@
 PROJECT=ffdb
 
-all: compile test
+all: compile test lint
 
 compile: lib/.requirements
 	./bin/pip install -e .
@@ -31,4 +31,7 @@ clean:
 test: lib/.requirements
 	./bin/py.test tests/
 
-.PHONY: compile test start
+lint: lib/.requirements
+	./bin/flake8 --ignore=E501 ffdb/ tests/
+
+.PHONY: compile test lint start clean

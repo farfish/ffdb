@@ -1,10 +1,11 @@
 import os
 
-from flask import Flask, request, Response, jsonify, g, current_app
+from flask import Flask, request, jsonify, current_app
 
 import ffdb.db as db
 
 app = Flask(__name__)
+
 
 @app.before_first_request
 def create_db():
@@ -12,11 +13,13 @@ def create_db():
         os.environ['DB_DSN'] = 'host=127.0.0.1 dbname=ffdb_db user=ffdb_user password=ffdb_pass'
     app.pool = db.create_pool(os.environ['DB_DSN'])
 
+
 @app.route('/api/doc/<template_name>', methods=['GET'])
 def list_documents(template_name):
     with current_app.pool.acquire() as connection:
         with connection.cursor() as cursor:
             return jsonify(documents=db.list_documents(cursor, template_name))
+
 
 @app.route('/api/doc/<template_name>/<document_name>', methods=['GET'])
 def get_document(template_name, document_name):
@@ -24,11 +27,13 @@ def get_document(template_name, document_name):
         with connection.cursor() as cursor:
             return jsonify(db.get_document(cursor, template_name, document_name))
 
+
 @app.route('/api/doc/<template_name>/<document_name>', methods=['PUT'])
 def store_document(template_name, document_name):
     with current_app.pool.acquire() as connection:
         with connection.cursor() as cursor:
             return jsonify(db.store_document(cursor, template_name, document_name, request.json))
+
 
 # ==== Error handlers =====================================
 def format_error(e):
@@ -42,6 +47,7 @@ def format_error(e):
         stack=traceback.format_exc() if getattr(e, 'print_stack', True) else None,
     )
 
+
 @app.errorhandler(404)
 def handle_404(error):
     response = jsonify(dict(
@@ -51,9 +57,9 @@ def handle_404(error):
     response.status_code = 404
     return response
 
+
 @app.errorhandler(500)
 def handle_500(error):
-    import traceback
     response = jsonify(format_error(error))
     response.status_code = 500
     return response
