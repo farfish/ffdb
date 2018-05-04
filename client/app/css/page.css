@@ -6,6 +6,10 @@ body {
     margin: 1rem auto;
 }
 
+abbr[title] {
+    text-decoration: underline;
+}
+
 #tbl > * {
     border-top: 1px solid #333;
     padding-bottom: 1rem;

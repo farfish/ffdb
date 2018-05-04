@@ -1,63 +1,91 @@
 "use strict";
+/*jslint todo: true */
 
 var dlmtool = [
     {
-        text: "<p>Please fill the form with all tha data available for your stock, if you are not sure about the value of some category please leave the field blank.</p><p>Based on DLMtool package (Tom Carruthers and Adrian Hordyk (2016). DLMtool: Data-Limited Methods Toolkit. R package version 3.1. <a href=\"https://CRAN.R-project.org/package=DLMtool\">https://CRAN.R-project.org/package=DLMtool</a>).</p>"
+        name: "metadata",
+        title: "Data description",
+        description: " " +
+            "Please fill the form with all the data available for your " +
+            "stock, if you are not sure about the value of some category " +
+            "please leave the field blank. If a field heading is underlined" +
+            "you can hover over for a more detailed description." +
+            '</p><p>' +
+            "Based on DLMtool package " +
+            "(Tom Carruthers and Adrian Hordyk (2016). DLMtool: Data-Limited " +
+            "Methods Toolkit. R package version 3.1. " +
+            "<a href=\"https://CRAN.R-project.org/package=DLMtool\">https://CRAN.R-project.org/package=DLMtool</a>).",
+        orientation: "vertical",
+        fields: {type: "list", values: [
+            ["type", "Data source type"],
+            ["description", "Data source description"],
+        ]},
+        values: {type: "list", values: [["value", "Value"], ["source", "Source"]]},
+        params: {rowHeaderWidth: 270},
     },
     {
         name: "constants",
         title: "Constants",
+        description: " " +
+            "In the 'source' field write for each value a reference source, this " +
+            "could be a bibliographic or a database (e.g. www.fishbase.org, " +
+            "http://ramlegacy.org) if available. If you do not have a reference " +
+            "but you have some knowledge on the value or if a reference does not " +
+            "apply just leave blank.",
         orientation: "vertical",
         fields: {type: "list", values: [
-            "Data source type", // i.e. where the data came from TODO: vocab?
-            "Data source description",
-            "Duration t",  // i.e. number columns for templateCatch
-            "Average catch over time t", // Mean of catch
-            "Depletion over time t",
-            "M",
-            "FMSY/M",
-            "BMSY/B0",
-            "MSY",
-            "BMSY",
-            "Length at 50% maturity",
-            "Length at 95% maturity",
-            "Length at first capture",
-            "Length at full selection",
-            "Current stock depletion",
-            "Current stock abundance",
-            "Von Bertalanffy K parameter",
-            "Von Bertalanffy Linf parameter",
-            "Von Bertalanffy t0 parameter",
-            "Length-weight parameter a",
-            "Length-weight parameter b",
-            "Steepness",
-            "Maximum age",
-            "CV Catch",
-            "CV Depletion over time t",
-            "CV Average catch over time t",
-            "CV Abundance index",
-            "CV M",
-            "CV FMSY/M",
-            "CV BMSY/B0",
-            "CV current stock depletion",
-            "CV current stock abundance",
-            "CV von B. K parameter",
-            "CV von B. Linf parameter",
-            "CV von B. t0 parameter",
-            "CV Length at 50% maturity",
-            "CV Length at first capture",
-            "CV Length at full selection",
-            "CV Length-weight parameter a",
-            "CV Length-weight parameter b",
-            "CV Steepness",
-            "Sigma length composition",
-            "Units",
-            "Reference OFL",
-            "Reference OFL type",
-            "MPrec",
-            "LHYear",
+            ["duration", '<abbr title="Number of years available for catch time series">Duration t</abbr>'], //TODO: Needed?
+            ["avg_catch_over_time", 'Average catch over time t'], // Mean of catch
+            ["depletion_over_time", '<abbr title="Estimated biomass in the last year divided by estimated biomass at the beginning of time series">Depletion over time t</abbr>'],
+            ["M", '<abbr title="Instantaneous natural mortality rate (year⁻¹)">M: Instantaneous natural mortality rate</a>'],
+            ["FMSY/M", 'FMSY/M'],
+            ["BMSY/B0", '<abbr title="The most productive stock size relative to unfished biomass">BMSY/B0</abbr>'],
+            ["MSY", 'MSY'],
+            ["BMSY", 'BMSY'],
+            ["length_at_50pc_maturity", 'Length at 50% maturity'],
+            ["length_at_95pc_maturity", 'Length at 95% maturity'],
+            ["length_at_first_capture", 'Length at first capture'],
+            ["length_at_full_selection", 'Length at full selection'],
+            ["current_stock_depletion", '<abbr title="Biomass today divided by unfished biomass (B0)">Current stock depletion</abbr>'],
+            ["current_stock_abundance", '<abbr title="Estimated abundance today">Current stock abundance</abbr>'],
+            ["Von_Bertalanffy_K", '<abbr title="Growth rate parameter">Von Bertalanffy K parameter</abbr>'],
+            ["Von_Bertalanffy_Linf", 'Von Bertalanffy Linf parameter'],
+            ["Von_Bertalanffy_t0", 'Von Bertalanffy t0 parameter'],
+            ["Length-weight_parameter_a", 'Length-weight param a (W=aLᵇ)'],
+            ["Length-weight_parameter_b", 'Length-weight param b (W=aLᵇ)'],
+            ["maximum_age", 'Maximum age'], //TODO: Needed?
+            ["catch_time_units", '<abbr title="e.g. tonnes, thousand tonnes">Units of catch time series</abbr>'],
+            ["ref_ofl_limit", '<abbr title="Reference Overfishing limit or reference catch limit e.g. previous catch recommendation">Reference Overfishing/catch limit</abbr>'],
         ]},
-        values: {type: "list", values: ["Value"]},
+        values: {type: "list", values: [["value", "Value"], ["source", "Source"]]},
+        params: {rowHeaderWidth: 330},
+    },
+    {
+        name: "cv",
+        title: "Coefficient of variation",
+        description: "CV is a measure of imprecision, i.e. how imprecise you think this value could be",
+        orientation: "vertical",
+        fields: {type: "list", values: [
+            ["catch", "CV Catch"],
+            ["depletion_over_time", "CV Depletion over time t"],
+            ["avg_catch_over_time", "CV Average catch over time t"],
+            ["abundance_index", "CV Abundance index"],
+            ["M", "CV M"],
+            ["FMSY/M", "CV FMSY/M"],
+            ["BMSY/B0", "CV BMSY/B0"],
+            ["current_stock_depletion", "CV current stock depletion"],
+            ["current_stock_abundance", "CV current stock abundance"],
+            ["Von_Bertalanffy_K", "CV von B. K parameter"],
+            ["Von_Bertalanffy_Linf", "CV von B. Linf parameter"],
+            ["Von_Bertalanffy_t0", "CV von B. t0 parameter"],
+            ["length_at_50pc_maturity", "CV Length at 50% maturity"],
+            ["length_at_first_capture", "CV Length at first capture"],
+            ["length_at_full_selection", "CV Length at full selection"],
+            ["Length-weight_parameter_a", "CV Length-weight parameter a"],
+            ["Length-weight_parameter_b", "CV Length-weight parameter b"],
+            ["length_composition", "Imprecision in length composition data"],
+        ]},
+        values: {type: "list", values: [["value", "Value"], ["source", "Source"]]},
         params: {rowHeaderWidth: 270},
     },
     {
@@ -65,8 +93,8 @@ var dlmtool = [
         title: "Catch data",
         orientation: "vertical",
         fields: {type: "list", values: [
-            "Catch",
-            "Abundance index",
+            ["catch", "Catch"],
+            ["abundance_index", "Abundance index"],
         ]},
         values: {type: 'year', min: 2000, max: 2010},
         params: {rowHeaderWidth: 170},

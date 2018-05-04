@@ -4,6 +4,18 @@ var test = require('tape');
 
 var get_dimension = require('../app/dimensions.js').get_dimension;
 
+test('ListDimension', function (t) {
+    var d;
+
+    d = get_dimension({type: 'list', values: [['l0', 'Item 0'], ['l1', 'Item 1']]});
+    t.deepEqual(d.headers(), ['l0', 'l1'], 'Got headers');
+    t.deepEqual(d.headerHTML(), ['Item 0', 'Item 1'], 'Got header HTML (i.e. pretty titles');
+    t.deepEqual(d.minCount(), 2, "Count same as length of values");
+    t.deepEqual(d.maxCount(), 2, "Count same as length of values");
+
+    t.end();
+});
+
 test('YearDimension', function (t) {
     var yd;
 

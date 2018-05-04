@@ -17,7 +17,8 @@ function sequence(min, max) {
 
 function ListDimension(t) { this.values = t.values; }
 ListDimension.prototype.parameterHtml = function () { return ""; };
-ListDimension.prototype.headers = function () { return this.values; };
+ListDimension.prototype.headers = function () { return this.values.map(function (x) { return x[0]; }); };
+ListDimension.prototype.headerHTML = function () { return this.values.map(function (x) { return x[1]; }); };
 ListDimension.prototype.minCount = function () { return this.values.length; };
 ListDimension.prototype.maxCount = function () { return this.values.length; };
 
@@ -41,6 +42,7 @@ YearDimension.prototype.parameterHtml = function () {
     ].join("\n");
 };
 YearDimension.prototype.headers = function () { return this.initial.concat(sequence(this.min, this.max)); };
+YearDimension.prototype.headerHTML = YearDimension.prototype.headers;
 YearDimension.prototype.minCount = function () { return this.initial.length + this.max - this.min + 1; };
 YearDimension.prototype.maxCount = function () { return this.initial.length + this.max - this.min + 1; };
 YearDimension.prototype.update = function (paramEl, hot, e) {
@@ -110,6 +112,7 @@ BinsDimension.prototype.parameterHtml = function () {
     ].join("\n");
 };
 BinsDimension.prototype.headers = function () { return sequence(1, this.count); };
+BinsDimension.prototype.headerHTML = BinsDimension.prototype.headers;
 BinsDimension.prototype.minCount = function () { return this.count; };
 BinsDimension.prototype.maxCount = function () { return this.count; };
 BinsDimension.prototype.update = function (paramEl, hot, e) {

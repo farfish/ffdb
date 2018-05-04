@@ -43,6 +43,7 @@ function generate_hots(template_name, input_dfs) {
 
         el.innerHTML = [
             '<h3>' + (tmpl.title || tmpl.name) + '</h3>',
+            (tmpl.description ? '<p>' + tmpl.description + '</p>' : ''),
             '<div class="parameters">',
             '<span class="cols">' + cols.parameterHtml() + '</span>',
             '<span class="rows">' + rows.parameterHtml() + '</span>',
@@ -53,10 +54,10 @@ function generate_hots(template_name, input_dfs) {
         hotParams = JSON.parse(JSON.stringify(tmpl.params || {}));
         hotParams.stretchH = 'all';
         hotParams.autoWrapRow = true;
-        hotParams.rowHeaders = rows.headers();
+        hotParams.rowHeaders = rows.headerHTML();
         hotParams.minRows = rows.minCount();
         hotParams.maxRows = rows.maxCount();
-        hotParams.colHeaders = cols.headers();
+        hotParams.colHeaders = cols.headerHTML();
         hotParams.minCols = cols.minCount();
         hotParams.maxCols = cols.maxCount();
         hotParams.data = input_df._headings.fields ? hot_utils.df_to_aofa(input_df, customData.fields.headers(), customData.values.headers(), tmpl.orientation) : undefined;
@@ -178,6 +179,7 @@ document.querySelector("#options button[name=export]").addEventListener('click',
         var i,
             data,
             rowHeaders,
+            colHeaders,
             tmpl = hots.tmpl[tableIndex];
 
         if (!tmpl.name) {
@@ -185,10 +187,11 @@ document.querySelector("#options button[name=export]").addEventListener('click',
             return;
         }
         data = hot.getData();
-        rowHeaders = hot.getRowHeader();
+        rowHeaders = hot.customData[tmpl.orientation === 'vertical' ? 'fields' : 'values'].headers();
+        colHeaders = hot.customData[tmpl.orientation === 'vertical' ? 'values' : 'fields'].headers();
 
         // Add column header
-        data.unshift(hot.getColHeader());
+        data.unshift(colHeaders);
 
         // Add row headers
         for (i = 0; i < data.length; i++) {
