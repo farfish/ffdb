@@ -16,6 +16,7 @@ SERVER_NAME="${SERVER_NAME-$(hostname --fqdn)}"
 SERVER_CERT_PATH="${SERVER_CERT_PATH-}"  # e.g. /etc/nginx/ssl/certs
 SERVICE_NAME="${SERVICE_NAME-ffdb}"
 SERVICE_FILE="${SERVICE_FILE-/etc/systemd/system/${SERVICE_NAME}.service}"
+SERVICE_ENV="${SERVICE_ENV-${PROJECT_PATH}/${SERVICE_NAME}.env}"
 NGINX_WP_SITE="${NGINX_WP_SITE-}"
 DB_SUDO_USER="${DB_SUDO_USER-postgres}"  # The user that has root access to DB
 DB_NAME="${DB_NAME-${SERVICE_NAME}_db}"  # The DB to create
@@ -42,6 +43,11 @@ set | grep -E 'UWSGI|SERVICE'
 # ---------------------------
 # Systemd unit file to run uWSGI
 
+cat <<EOF > "${SERVICE_ENV}"
+DB_DSN="host=127.0.0.1 dbname=${DB_NAME} user=${DB_USER} password=${DB_PASS}"
+EOF
+chmod 600 -- "${SERVICE_ENV}"
+
 systemctl | grep -q "${SERVICE_NAME}.service" && systemctl stop ${SERVICE_NAME}.service
 cat <<EOF > ${SERVICE_FILE}
 [Unit]
@@ -59,6 +65,7 @@ ExecStart=${UWSGI_BIN} \
 WorkingDirectory=${PROJECT_PATH}/server
 User=${UWSGI_USER}
 Group=${UWSGI_GROUP}
+EnvironmentFile=${SERVICE_ENV}
 Restart=on-failure
 RestartSec=5s
 KillSignal=SIGQUIT
