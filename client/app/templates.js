@@ -8,7 +8,7 @@ var dlmtool = [
         description: " " +
             "Please fill the form with all the data available for your " +
             "stock, if you are not sure about the value of some category " +
-            "please leave the field blank. If a field heading is underlined" +
+            "please leave the field blank. If a field heading is underlined " +
             "you can hover over for a more detailed description." +
             '</p><p>' +
             "Based on DLMtool package " +
