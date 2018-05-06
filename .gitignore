@@ -20,6 +20,6 @@
 /server/.cache
 
 /.local-conf
-/ffdb.sqlite.*
+/ffdb.env
 
 /db
