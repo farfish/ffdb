@@ -24,6 +24,36 @@ var dlmtool = [
         params: {rowHeaderWidth: 270},
     },
     {
+        name: "catch",
+        title: "Catch data",
+        description: " " +
+            "Set the units (e.g. 'thousand tonnes') in the constants section below.",
+        orientation: "vertical",
+        fields: {type: "list", values: [
+            ["catch", "Catch"],
+            ["abundance_index", "Abundance index"],
+        ]},
+        values: {type: 'year', min: 2000, max: 2010},
+        params: {rowHeaderWidth: 170},
+    },
+    {
+        name: "caa",
+        title: "Catch at age",
+        description: "Age data should be in numbers.",
+        orientation: "horizontal",
+        fields: {type: "bins", count: 10},
+        values: {type: "year", min: 2000, max: 2010},
+    },
+    {
+        name: "cal",
+        title: "Catch at length",
+        description: "Length data should be in mm.",
+        orientation: "horizontal",
+        fields: {type: "bins", count: 10},
+        values: {type: "year", min: 2000, max: 2010, initial: ["Min Length"]},
+        params: {rowHeaderWidth: 100},
+    },
+    {
         name: "constants",
         title: "Constants",
         description: " " +
@@ -34,7 +64,6 @@ var dlmtool = [
             "apply just leave blank.",
         orientation: "vertical",
         fields: {type: "list", values: [
-            ["duration", '<abbr title="Number of years available for catch time series">Duration t</abbr>'], //TODO: Needed?
             ["avg_catch_over_time", 'Average catch over time t'], // Mean of catch
             ["depletion_over_time", '<abbr title="Estimated biomass in the last year divided by estimated biomass at the beginning of time series">Depletion over time t</abbr>'],
             ["M", '<abbr title="Instantaneous natural mortality rate (year⁻¹)">M: Instantaneous natural mortality rate</a>'],
@@ -87,32 +116,6 @@ var dlmtool = [
         ]},
         values: {type: "list", values: [["value", "Value"], ["source", "Source"]]},
         params: {rowHeaderWidth: 270},
-    },
-    {
-        name: "catch",
-        title: "Catch data",
-        orientation: "vertical",
-        fields: {type: "list", values: [
-            ["catch", "Catch"],
-            ["abundance_index", "Abundance index"],
-        ]},
-        values: {type: 'year', min: 2000, max: 2010},
-        params: {rowHeaderWidth: 170},
-    },
-    {
-        name: "caa",
-        title: "Catch at age",
-        orientation: "horizontal",
-        fields: {type: "bins", count: 10},
-        values: {type: "year", min: 2000, max: 2010},
-    },
-    {
-        name: "cal",
-        title: "Catch at length",
-        orientation: "horizontal",
-        fields: {type: "bins", count: 10},
-        values: {type: "year", min: 2000, max: 2010, initial: ["Min Length"]},
-        params: {rowHeaderWidth: 100},
     },
 ];
 
