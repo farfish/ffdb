@@ -90,7 +90,7 @@ function generate_hots(template_name, input_dfs) {
         return hot;
     });
 
-    jQuery('#buttons').show();
+    jQuery('#buttons button').prop('disabled', false);
 
     out.tmpl = table_templates[template_name];
     return out;
