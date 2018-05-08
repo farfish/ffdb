@@ -17,11 +17,12 @@ var dlmtool = [
             "<a href=\"https://CRAN.R-project.org/package=DLMtool\">https://CRAN.R-project.org/package=DLMtool</a>).",
         orientation: "vertical",
         fields: {type: "list", values: [
-            ["type", "Data source type"],
-            ["description", "Data source description"],
+            ["species", "Species"],
+            ["location", "Location"],
+            ["case_study", "Case study"],
         ]},
-        values: {type: "list", values: [["value", "Value"], ["source", "Source"]]},
-        params: {rowHeaderWidth: 270},
+        values: {type: "list", values: [["value", "Value"]]},
+        params: {rowHeaderWidth: 140},
     },
     {
         name: "catch",
