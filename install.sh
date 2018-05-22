@@ -18,6 +18,7 @@ SERVICE_NAME="${SERVICE_NAME-ffdb}"
 SERVICE_FILE="${SERVICE_FILE-/etc/systemd/system/${SERVICE_NAME}.service}"
 SERVICE_ENV="${SERVICE_ENV-${PROJECT_PATH}/${SERVICE_NAME}.env}"
 NGINX_WP_SITE="${NGINX_WP_SITE-}"
+NGINX_EXTRA_LOCATIONS="${NGINX_EXTRA_LOCATIONS-}"
 DB_SUDO_USER="${DB_SUDO_USER-postgres}"  # The user that has root access to DB
 DB_NAME="${DB_NAME-${SERVICE_NAME}_db}"  # The DB to create
 DB_USER="${DB_USER-${SERVICE_NAME}_user}"  # The credentials that the app will use
@@ -159,6 +160,7 @@ cat <<EOF >> /etc/nginx/sites-available/${SERVICE_NAME}
         ${NGINX_LOGIN_COND}
         try_files \$uri /app.html;
     }
+${NGINX_EXTRA_LOCATIONS}
 }
 EOF
 ln -fs /etc/nginx/sites-available/${SERVICE_NAME} /etc/nginx/sites-enabled/${SERVICE_NAME}
