@@ -5,7 +5,7 @@ NODE != which node || which nodejs
 NODE_CMD = NODE_PATH="$(CURDIR)" $(NODE)
 SHELL=/bin/bash -o pipefail
 
-OUTPUTS := upload
+OUTPUTS := index upload
 
 OUT_FILES = \
     www/js/polyfill.min.js \

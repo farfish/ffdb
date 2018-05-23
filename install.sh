@@ -158,7 +158,7 @@ cat <<EOF >> /etc/nginx/sites-available/${SERVICE_NAME}
 
     location / {
         ${NGINX_LOGIN_COND}
-        try_files \$uri /app.html;
+        try_files \$uri \$uri.html /index.html;
     }
 ${NGINX_EXTRA_LOCATIONS}
 }
