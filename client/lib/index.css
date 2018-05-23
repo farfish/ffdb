@@ -1,24 +1,6 @@
 @import "lib/css/alerts.css";
+@import "lib/css/page-layout.css";
 
-html {
-    background-color: transparent;
+h3 {
+    clear: left;
 }
-body {
-    max-width: 960px;
-    margin: 1rem auto;
-}
-
-abbr[title] {
-    text-decoration: underline;
-}
-
-#tbl > * {
-    border-top: 1px solid #333;
-    padding-bottom: 1rem;
-}
-
-#options li {
-    list-style-type: none;
-    margin-bottom: 0.3rem;
-}
-

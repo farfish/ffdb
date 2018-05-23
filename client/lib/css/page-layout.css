@@ -1,0 +1,17 @@
+html {
+    background-color: transparent;
+}
+body {
+    max-width: 960px;
+    margin: 1rem auto;
+}
+
+footer {
+    border-top: 1px solid black;
+    padding-top: 1rem;
+}
+footer > img {
+    float: left;
+    margin-right: 1rem;
+}
+
