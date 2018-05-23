@@ -8,6 +8,7 @@ SHELL=/bin/bash -o pipefail
 OUTPUTS := upload
 
 OUT_FILES = \
+    www/js/polyfill.min.js \
     www/js/libraries.min.js \
     www/css/libraries.min.css \
     $(foreach O,$(OUTPUTS),www/$(O).html www/js/$(O).min.js www/css/$(O).min.css)
