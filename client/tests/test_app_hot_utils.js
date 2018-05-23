@@ -2,7 +2,7 @@
 /*jslint todo: true, regexp: true, nomen: true */
 var test = require('tape');
 
-var hot_utils = require('../app/hot_utils.js');
+var hot_utils = require('lib/hot_utils.js');
 
 test('df_to_aofa', function (t) {
     t.deepEqual(hot_utils.df_to_aofa({

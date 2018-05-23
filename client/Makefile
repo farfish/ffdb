@@ -2,16 +2,15 @@ GIT = git
 YARN = yarn
 NODE = node
 NODE != which node || which nodejs
-NODE_PATH = node_modules
-NODE_CMD = NODE_PATH="$(NODE_PATH)" $(NODE)
+NODE_CMD = NODE_PATH="$(CURDIR)" $(NODE)
+SHELL=/bin/bash -o pipefail
+
+OUTPUTS := upload
 
 OUT_FILES = \
-    www/app.html \
-    www/js/app.min.js \
-    www/css/app.min.css \
-    www/js/polyfill.min.js \
     www/js/libraries.min.js \
     www/css/libraries.min.css \
+    $(foreach O,$(OUTPUTS),www/$(O).html www/js/$(O).min.js www/css/$(O).min.css)
 
 LIBRARIES_JS = \
     file-saver \
@@ -27,32 +26,36 @@ LIBRARIES_CSS = \
 
 all: test lint compile
 
-compile: $(NODE_PATH) $(OUT_FILES)
+compile: node_modules/ $(OUT_FILES)
 
-test: $(NODE_PATH)
-	$(NODE_CMD) $(NODE_PATH)/tape/bin/tape tests/test_*.js
+test: node_modules/
+	$(NODE_CMD) node_modules/.bin/tape tests/test_*.js
 
-coverage: $(NODE_PATH)
-	$(NODE_CMD) node_modules/istanbul/lib/cli.js cover $(NODE_PATH)/tape/bin/tape tests/test_*.js
+coverage: node_modules/
+	$(NODE_CMD) node_modules/istanbul/lib/cli.js cover node_modules/tape/bin/tape tests/test_*.js
 
-lint: $(NODE_PATH)
-	$(NODE_CMD) $(NODE_PATH)/jslint/bin/jslint */*.js
+lint: node_modules/
+	$(NODE_CMD) node_modules/jslint/bin/jslint */*.js
 
 clean:
-	rm -r -- "$(NODE_PATH)"
-	rm -- www/js/*.min.js www/css/*.min.css
+	rm -r -- "node_modules/" || true
+	rm -- $(OUT_FILES) || true
 
-$(NODE_PATH): package.json
-	NODE_PATH="$(NODE_PATH)" $(YARN)
-	touch $(NODE_PATH)
+node_modules/: package.json yarn.lock
+	$(YARN)
+	touch node_modules/
+
+yarn.lock:
+	touch $@
 
 www/js/libraries.min.js: package.json
 	mkdir -p www/js
 	(cd www/js && ln -sf ../../node_modules .)
-	$(NODE_CMD) $(NODE_PATH)/browserify/bin/cmd.js \
+	$(NODE_CMD) node_modules/browserify/bin/cmd.js \
 	        $(foreach l,$(LIBRARIES_JS),-r $(l)) \
-	        -g uglifyify \
-	    > $@.mktmp
+	    | $(NODE_CMD) node_modules/uglify-js/bin/uglifyjs \
+	        --compress --mangle "reserved=['$$','require','exports']" \
+	        --output $@.mktmp
 	mv $@.mktmp $@
 
 www/css/libraries.min.css: package.json
@@ -61,26 +64,31 @@ www/css/libraries.min.css: package.json
 	cat $(LIBRARIES_CSS) > $@.mktmp
 	mv $@.mktmp $@
 
-www/js/%.min.js: package.json %/*
+www/js/%.min.js: lib/%.js lib/*.js package.json
 	mkdir -p www/js
-	(cd www/js && ln -sf ../../$(basename $(basename $(notdir $@))) .)
-	$(NODE_CMD) $(NODE_PATH)/browserify/bin/cmd.js --debug \
+	(cd www/js && ln -sf ../../lib .)
+	$(NODE_CMD) node_modules/.bin//browserify --debug \
 	        $(foreach l,$(LIBRARIES_JS),-x $(l)) \
-	        -g uglifyify \
-	        $(basename $(basename $(notdir $@)))/index.js \
-	    | $(NODE_CMD) $(NODE_PATH)/exorcist/bin/exorcist.js $@.map \
-	        --base . \
-	        --root /js/ \
-	        --url /js/$(notdir $@).map \
-	    > $@.mktmp
+	        $< \
+	    | $(NODE_CMD) node_modules/.bin/uglifyjs \
+	        --compress --mangle "reserved=['$$','require','exports']" \
+	        --source-map "content='inline',url='$(notdir $@).map'" \
+	        --output $@.mktmp
+	mv $@.mktmp.map $@.map
 	mv $@.mktmp $@
 
-www/css/%.min.css: package.json %/css/*
-	cat $(basename $(basename $(notdir $@)))/css/* > $@.mktmp
-	mv $@.mktmp $@
+www/css/%.min.css: lib/%.css lib/*.css package.json
+	mkdir -p www/css
+	(cd www/css && ln -sf ../../lib .)
+	$(NODE_CMD) node_modules/postcss-cli/bin/postcss \
+	    --config postcss.config.js \
+	    -o $@ \
+	    $<
 
-www/%.html: package.json %/*.html
-	cat $(basename $(basename $(notdir $@)))/index.html > $@.mktmp
+www/%.html: lib/%.html $(filter-out %.html,$(OUT_FILES)) \
+    ../.local-conf \
+    package.json
+	cat $< > $@.mktmp
 	mv $@.mktmp $@
 
 .PHONY: compile test lint clean

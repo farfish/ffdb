@@ -2,7 +2,7 @@
 /*jslint todo: true, regexp: true */
 var test = require('tape');
 
-var get_dimension = require('../app/dimensions.js').get_dimension;
+var get_dimension = require('lib/dimensions.js').get_dimension;
 
 test('ListDimension', function (t) {
     var d;
