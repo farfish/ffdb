@@ -19,11 +19,19 @@ data.
 Prerequisites
 -------------
 
-Install the following prerequisites::
+Install the following server prerequisites::
 
     sudo apt install \
+        nginx \
         python3-venv python3-dev \
         postgresql
+
+Install nodejs and yarn to complile the front-end::
+
+    # See https://yarnpkg.com/lang/en/docs/install/
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+    sudo apt install nodejs yarn
 
 Installation
 ------------
@@ -40,7 +48,7 @@ Then create a ``.local-conf`` for your site configuration, see the top of
     SERVER_NAME=ffdb.*
     EOF
 
-Finally install:
+Finally run install to create a systemd service and nginx configuration:
 
     sudo ./install.sh
 
