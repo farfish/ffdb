@@ -15,6 +15,11 @@ function sequence(min, max) {
     return out;
 }
 
+// Parse everything that is a number, ditch anything that didn't parse
+function numericItems(arr) {
+    return arr.map(Number).filter(function (x) { return !isNaN(x); });
+}
+
 function ListDimension(t) { this.values = t.values; }
 ListDimension.prototype.parameterHtml = function () { return ""; };
 ListDimension.prototype.headers = function () { return this.values.map(function (x) { return x[0]; }); };
@@ -23,15 +28,11 @@ ListDimension.prototype.minCount = function () { return this.values.length; };
 ListDimension.prototype.maxCount = function () { return this.values.length; };
 
 function YearDimension(t, init_headings) {
-    var numeric_headings = (init_headings || []).map(function (x) { return parseInt(x, 10); });
+    var numeric_headings = numericItems(init_headings || [t.min, t.max]);
 
     this.initial = t.initial || [];
-    if (this.initial.length > 0) {
-        //TODO: Can we trust the initial items to always be there? Bit dodgy
-        numeric_headings.splice(0, this.initial.length);
-    }
-    this.min = numeric_headings.length > 0 ? Math.min.apply(null, numeric_headings) : t.min;
-    this.max = numeric_headings.length > 0 ? Math.max.apply(null, numeric_headings) : t.max;
+    this.min = Math.min.apply(null, numeric_headings);
+    this.max = Math.max.apply(null, numeric_headings);
     this.overall_min = t.overall_min || 1900;
     this.overall_max = t.overall_max || 2050;
 }
