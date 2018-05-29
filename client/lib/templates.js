@@ -83,7 +83,7 @@ var dlmtool = [
             ["Von_Bertalanffy_t0", 'Von Bertalanffy t0 parameter'],
             ["Length-weight_parameter_a", 'Length-weight param a (W=aLᵇ)'],
             ["Length-weight_parameter_b", 'Length-weight param b (W=aLᵇ)'],
-            ["maximum_age", 'Maximum age'], //TODO: Needed?
+            ["maximum_age", 'Maximum age'],
             ["ref_ofl_limit", '<abbr title="Reference Overfishing limit or reference catch limit e.g. previous catch recommendation">Reference Overfishing/catch limit</abbr>'],
         ]},
         values: {type: "list", values: [["value", "Value"], ["source", "Source"]]},
