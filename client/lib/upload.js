@@ -239,7 +239,7 @@ jQuery("select[name=filename]").selectize({
         return window.fetch('/api/doc/dlmtool', {
             method: "GET",
         }).then(function (response) {
-            return response.json();  //TODO: Error handling
+            return response.json();
         }).then(function (data) {
             callback(data.documents.map(function (x) {
                 return {
