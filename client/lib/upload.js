@@ -11,7 +11,7 @@ var selectize = require('selectize');
 var alert = require('alerts');
 alert.transitionTime = 300;
 
-var hots;
+var hots, file_select;
 
 /** Wrap a promise, enabling alerts and loading spinner */
 function do_work(p) {
@@ -79,7 +79,13 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
             "Content-Type": "application/json",
         },
         body: JSON.stringify(sheets),
+    }).then(function (response) {
+        return response.json();
     }).then(function (data) {
+        file_select.updateOption(data.document_name, {
+            value: data.document_name,
+            text: data.document_name + " (v" + data.version + ")",
+        });
         alert("Saved", { className: "success", timeout: 3000 });
     }));
 });
@@ -162,7 +168,7 @@ document.querySelector("#options button[name=import]").addEventListener('click',
 
 jQuery("select[name=template]").selectize({});
 
-jQuery("select[name=filename]").selectize({
+file_select = jQuery("select[name=filename]").selectize({
     preload: true,
     loadThrottle: null,
     load: function (query, callback) {
@@ -192,4 +198,4 @@ jQuery("select[name=filename]").selectize({
     }).then(function (data) {
         hots = generate_hots(document.querySelector("select[name=template]").value, data.content);
     }));
-});
+})[0].selectize;
