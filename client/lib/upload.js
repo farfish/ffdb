@@ -6,12 +6,13 @@ var file_loader = require('./file_loader.js');
 var FileSaver = require('file-saver');
 var jQuery = require('jquery');
 var generate_hots = require('./hot_generate.js').generate_hots;
+var table_templates = require('./templates.js').table_templates;
 var hot_utils = require('./hot_utils.js');
 var selectize = require('selectize');
 var alert = require('alerts');
 alert.transitionTime = 300;
 
-var hots, file_select;
+var hots, file_select, template_select;
 
 /** Wrap a promise, enabling alerts and loading spinner */
 function do_work(p) {
@@ -166,10 +167,31 @@ document.querySelector("#options button[name=import]").addEventListener('click',
     });
 });
 
-jQuery("select[name=template]").selectize({});
+template_select = jQuery("select[name=template]").selectize({
+    preload: true,
+    loadThrottle: null,
+    load: function (query, callback) {
+        var templates = Object.keys(table_templates);
+
+        do_work(new Promise(function (resolve) {
+            callback(templates.map(function (x) {
+                return {
+                    value: x,
+                    text: x,
+                };
+            }));
+            resolve();
+        }).then(function () {
+            // Choose first value, trigger change
+            this.setValue(templates[0]);
+        }.bind(this)));
+    },
+}).on('change', function (e) {
+    // Trigger file_select to update
+    file_select.onSearchChange('');
+})[0].selectize;
 
 file_select = jQuery("select[name=filename]").selectize({
-    preload: true,
     loadThrottle: null,
     load: function (query, callback) {
         return do_work(window.fetch('/api/doc/dlmtool', {
@@ -187,7 +209,7 @@ file_select = jQuery("select[name=filename]").selectize({
     },
     create: true,
 }).on('change', function (e) {
-    do_work(window.fetch('/api/doc/dlmtool/' + encodeURIComponent(e.target.value), {
+    do_work(window.fetch('/api/doc/' + encodeURIComponent(template_select.getValue()) + '/' + encodeURIComponent(e.target.value), {
         method: "GET",
     }).then(function (response) {
         if (response.status === 404) {
@@ -196,6 +218,6 @@ file_select = jQuery("select[name=filename]").selectize({
         }
         return response.json();
     }).then(function (data) {
-        hots = generate_hots(document.querySelector("select[name=template]").value, data.content);
+        hots = generate_hots(template_select.getValue(), data.content);
     }));
 })[0].selectize;
