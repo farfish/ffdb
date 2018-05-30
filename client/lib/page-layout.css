@@ -15,3 +15,60 @@ footer > img {
     margin-right: 1rem;
 }
 
+body:before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 110%;
+  opacity: 0;
+}
+body.loading:before {
+  bottom: 0;
+  z-index: 10000;
+  transition: opacity 0.5s ease-in-out;
+  opacity: 1;
+  background-color: hsla(0, 0%, 90%, 0.4);
+}
+/*
+ * Spinner from http://tobiasahlin.com/spinkit/
+ *
+ * The MIT License (MIT)
+ * Copyright (c) 2015 Tobias Ahlin
+ */
+body.loading:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  width: 80px;
+  height: 80px;
+  margin-top: -40px;
+  margin-left: -40px;
+  background-color: #333;
+
+  border-radius: 100%;
+  -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+  animation: sk-scaleout 1.0s infinite ease-in-out;
+}
+
+@-webkit-keyframes sk-scaleout {
+  0% { -webkit-transform: scale(0) }
+  100% {
+    -webkit-transform: scale(1.0);
+    opacity: 0;
+  }
+}
+
+@keyframes sk-scaleout {
+  0% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  } 100% {
+    -webkit-transform: scale(1.0);
+    transform: scale(1.0);
+    opacity: 0;
+  }
+}

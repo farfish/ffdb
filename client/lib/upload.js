@@ -96,6 +96,19 @@ function generate_hots(template_name, input_dfs) {
     return out;
 }
 
+/** Wrap a promise, enabling alerts and loading spinner */
+function do_work(p) {
+    document.querySelector('body').classList.add('loading');
+
+    return p.then(function () {
+        document.querySelector('body').classList.remove('loading');
+    }).catch(function (err) {
+        document.querySelector('body').classList.remove('loading');
+        alert(err, {className: "error"});
+        throw err;
+    });
+}
+
 /**
   * Save content. Turn it into a data.frame alike of:
   * {
@@ -143,7 +156,7 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
         sheets[tmpl.name] = out;
     });
 
-    window.fetch('/api/doc/dlmtool/' + encodeURIComponent(filename), {
+    do_work(window.fetch('/api/doc/dlmtool/' + encodeURIComponent(filename), {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -151,7 +164,7 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
         body: JSON.stringify(sheets),
     }).then(function (data) {
         alert("Saved", { className: "success", timeout: 3000 });
-    });
+    }));
 });
 
 document.querySelector("#options button[name=export]").addEventListener('click', function (e) {
@@ -236,7 +249,7 @@ jQuery("select[name=filename]").selectize({
     preload: true,
     loadThrottle: null,
     load: function (query, callback) {
-        return window.fetch('/api/doc/dlmtool', {
+        return do_work(window.fetch('/api/doc/dlmtool', {
             method: "GET",
         }).then(function (response) {
             return response.json();
@@ -247,14 +260,11 @@ jQuery("select[name=filename]").selectize({
                     text: x.document_name + " (v" + x.latest + ")",
                 };
             }));
-        }).catch(function (err) {
-            alert(err, {className: "error"});
-            throw err;
-        });
+        }));
     },
     create: true,
 }).on('change', function (e) {
-    window.fetch('/api/doc/dlmtool/' + encodeURIComponent(e.target.value), {
+    do_work(window.fetch('/api/doc/dlmtool/' + encodeURIComponent(e.target.value), {
         method: "GET",
     }).then(function (response) {
         if (response.status === 404) {
@@ -264,8 +274,5 @@ jQuery("select[name=filename]").selectize({
         return response.json();
     }).then(function (data) {
         hots = generate_hots(document.querySelector("select[name=template]").value, data.content);
-    }).catch(function (err) {
-        alert(err, {className: "error"});
-        throw err;
-    });
+    }));
 });
