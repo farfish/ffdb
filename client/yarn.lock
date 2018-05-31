@@ -431,10 +431,6 @@ chokidar@^2.0.0:
   optionalDependencies:
     fsevents "^1.1.2"
 
-chosen-js@^1.7.0:
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/chosen-js/-/chosen-js-1.8.2.tgz#bfd8ed1266ef667fbbc453c7e5b88d4c470e897e"
-
 chownr@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/chownr/-/chownr-1.0.1.tgz#e2a75042a9551908bebd25b8523d5f9769d79181"

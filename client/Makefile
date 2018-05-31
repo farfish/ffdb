@@ -61,7 +61,6 @@ www/js/libraries.min.js: package.json
 
 www/css/libraries.min.css: package.json
 	mkdir -p www/css
-	cp node_modules/chosen-js/chosen-sprite*.png www/css/
 	cat $(LIBRARIES_CSS) > $@.mktmp
 	mv $@.mktmp $@
 
