@@ -187,6 +187,12 @@ template_select = jQuery("select[name=template]").selectize({
         }.bind(this)));
     },
 }).on('change', function (e) {
+    if (window.serverless) {
+        // Just show an empty template
+        hots = generate_hots(template_select.getValue(), {content: {}});
+        return;
+    }
+
     // Trigger file_select to update
     file_select.onSearchChange('');
 })[0].selectize;
@@ -221,3 +227,9 @@ file_select = jQuery("select[name=filename]").selectize({
         hots = generate_hots(template_select.getValue(), data.content);
     }));
 })[0].selectize;
+
+// Hide controls that aren't relevant
+if (window.serverless) {
+    document.querySelector("#options button[name=save]").style.display = "none";
+    document.querySelector("label.filename").style.display = "none";
+}
