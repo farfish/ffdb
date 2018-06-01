@@ -27,7 +27,7 @@ LIBRARIES_CSS = \
 
 all: test lint compile
 
-compile: node_modules/ $(OUT_FILES)
+compile: node_modules/ clean-unused $(OUT_FILES)
 
 test: node_modules/
 	$(NODE_CMD) node_modules/.bin/tape tests/test_*.js
@@ -40,7 +40,13 @@ lint: node_modules/
 
 clean:
 	rm -r -- "node_modules/" || true
-	rm -- $(OUT_FILES) || true
+	rm -r -- www/* || true
+
+clean-unused:
+	for f in $(filter-out \
+	    $(foreach f,$(OUT_FILES),$(shell dirname $(f))/$(shell readlink $(f))), \
+	    $(wildcard www/*/*.min.r*.*) \
+	); do rm -- $$f; done
 
 node_modules/: package.json yarn.lock
 	$(YARN)
@@ -108,4 +114,4 @@ www/%.html: lib/%.html $(filter-out %.html,$(OUT_FILES)) \
 	    $(NODE_CMD) build/html_compile.js $< $@.mktmp $^
 	mv $@.mktmp $@
 
-.PHONY: compile test lint clean
+.PHONY: compile test lint clean clean-unused
