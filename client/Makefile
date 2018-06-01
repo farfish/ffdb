@@ -70,9 +70,9 @@ sha1_envvars = \
 www/js/libraries.min.js: package.json
 	mkdir -p www/js
 	(cd www/js && ln -sf ../../node_modules .)
-	$(NODE_CMD) node_modules/browserify/bin/cmd.js \
+	$(NODE_CMD) node_modules/.bin/browserify \
 	        $(foreach l,$(LIBRARIES_JS),-r $(l)) \
-	    | $(NODE_CMD) node_modules/uglify-js/bin/uglifyjs \
+	    | $(NODE_CMD) node_modules/.bin/uglifyjs \
 	        --compress --mangle "reserved=['$$','require','exports']" \
 	        --output $@.mktmp
 	$(call sha1_symlink,js,$@.mktmp,$@)
@@ -85,7 +85,7 @@ www/css/libraries.min.css: package.json
 www/js/%.min.js: lib/%.js lib/*.js package.json
 	mkdir -p www/js
 	(cd www/js && ln -sf ../../lib .)
-	$(NODE_CMD) node_modules/.bin//browserify --debug \
+	$(NODE_CMD) node_modules/.bin/browserify --debug \
 	        $(foreach l,$(LIBRARIES_JS),-x $(l)) \
 	        $< \
 	    | $(NODE_CMD) node_modules/.bin/uglifyjs \
