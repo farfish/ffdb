@@ -29,6 +29,8 @@ all: test lint compile
 
 compile: node_modules/ clean-unused $(OUT_FILES)
 
+start: all
+
 test: node_modules/
 	$(NODE_CMD) node_modules/.bin/tape tests/test_*.js
 
@@ -47,6 +49,9 @@ clean-unused:
 	    $(foreach f,$(OUT_FILES),$(shell dirname $(f))/$(shell readlink $(f))), \
 	    $(wildcard www/*/*.min.r*.*) \
 	); do rm -- $$f; done
+
+watch:
+	while inotifywait -r lib; do make compile; done
 
 node_modules/: package.json yarn.lock
 	$(YARN)
@@ -114,4 +119,4 @@ www/%.html: lib/%.html $(filter-out %.html,$(OUT_FILES)) \
 	    $(NODE_CMD) build/html_compile.js $< $@.mktmp $^
 	mv $@.mktmp $@
 
-.PHONY: compile test lint clean clean-unused
+.PHONY: compile test start lint clean clean-unused
