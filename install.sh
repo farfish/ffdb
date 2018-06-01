@@ -156,6 +156,11 @@ cat <<EOF >> /etc/nginx/sites-available/${SERVICE_NAME}
         uwsgi_pass  uwsgi_server;
     }
 
+    # Versioned resources can be cached for ages
+    location ~ \.r\w+\.\w+\$ {
+        expires 30d;
+    }
+
     location / {
         ${NGINX_LOGIN_COND}
         try_files \$uri \$uri.html /index.html;

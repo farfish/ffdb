@@ -33,6 +33,9 @@ Install nodejs and yarn to complile the front-end::
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
     sudo apt install nodejs yarn
 
+    # NB: We need at least node >= 6.9.0, so you may need:
+    sudo apt install -t stretch-backports nodejs
+
 Installation
 ------------
 

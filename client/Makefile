@@ -49,6 +49,18 @@ node_modules/: package.json yarn.lock
 yarn.lock:
 	touch $@
 
+# Move minified output to a version with sha1 hash in it's name, symlink to proper output
+sha1_symlink = \
+    REV_FILE="www/$(1)/$$(basename $(3) .min.$(1)).min.r$$(sha1sum $(2) | head -c7).$(1)"; \
+    mv $(2) $$REV_FILE; \
+    ln -rsf $$REV_FILE $(3)
+
+# Generate environment variables that point to the sha1 hash version
+sha1_envvars = \
+    for f in $(1); do \
+        eval sha_$$(basename $$f | sed 's/\W/_/g')=$$(readlink $$f); \
+    done;
+
 www/js/libraries.min.js: package.json
 	mkdir -p www/js
 	(cd www/js && ln -sf ../../node_modules .)
@@ -57,12 +69,12 @@ www/js/libraries.min.js: package.json
 	    | $(NODE_CMD) node_modules/uglify-js/bin/uglifyjs \
 	        --compress --mangle "reserved=['$$','require','exports']" \
 	        --output $@.mktmp
-	mv $@.mktmp $@
+	$(call sha1_symlink,js,$@.mktmp,$@)
 
 www/css/libraries.min.css: package.json
 	mkdir -p www/css
 	cat $(LIBRARIES_CSS) > $@.mktmp
-	mv $@.mktmp $@
+	$(call sha1_symlink,css,$@.mktmp,$@)
 
 www/js/%.min.js: lib/%.js lib/*.js package.json
 	mkdir -p www/js
@@ -75,7 +87,7 @@ www/js/%.min.js: lib/%.js lib/*.js package.json
 	        --source-map "content='inline',url='$(notdir $@).map'" \
 	        --output $@.mktmp
 	mv $@.mktmp.map $@.map
-	mv $@.mktmp $@
+	$(call sha1_symlink,js,$@.mktmp,$@)
 
 www/css/%.min.css: lib/%.css lib/*.css package.json
 	mkdir -p www/css
@@ -84,11 +96,16 @@ www/css/%.min.css: lib/%.css lib/*.css package.json
 	    --config postcss.config.js \
 	    -o $@ \
 	    $<
+	$(call sha1_symlink,css,$@,$@)
 
 www/%.html: lib/%.html $(filter-out %.html,$(OUT_FILES)) \
     ../.local-conf \
+    build/html_compile.js \
     package.json
-	cat $< > $@.mktmp
+	set -a; \
+	    [ -f ../.local-conf ] && . ../.local-conf; \
+	    $(call sha1_envvars,$(OUT_FILES)) \
+	    $(NODE_CMD) build/html_compile.js $< $@.mktmp $^
 	mv $@.mktmp $@
 
 .PHONY: compile test lint clean

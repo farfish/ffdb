@@ -12,8 +12,8 @@
 
     <link rel='stylesheet' id='avia-google-webfont' href='//fonts.googleapis.com/css?family=Open+Sans:400,600' type='text/css' media='all'/>
     <link href="https://www.farfish.eu/wp-content/uploads/dynamic_avia/enfold.css?ver=59d6028a75d91" rel="stylesheet">
-    <link href="/css/libraries.min.css" rel="stylesheet">
-    <link href="/css/index.min.css" rel="stylesheet">
+    <link href="css/{{env.sha_libraries_min_css}}" rel="stylesheet">
+    <link href="css/{{env['sha_' + tmpl.base + '_min_css']}}" rel="stylesheet">
   </head>
 
   <body>
@@ -45,8 +45,8 @@
       This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement no. 727891.
     </footer>
 
-    <script src="/js/polyfill.min.js"></script>
-    <script src="/js/libraries.min.js"></script>
-    <script src="/js/index.min.js"></script>
+    <script src="js/{{env.sha_polyfill_min_js}}"></script>
+    <script src="js/{{env.sha_libraries_min_js}}"></script>
+    <script src="js/{{env['sha_' + tmpl.base + '_min_js']}}"></script>
 </body>
 </html>
