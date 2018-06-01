@@ -49,6 +49,7 @@
       This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement no. 727891.
     </footer>
 
+    {% if env.SERVERLESS %}<script>window.serverless = true;</script>{% endif %}
     <script src="js/{{env.sha_polyfill_min_js}}"></script>
     <script src="js/{{env.sha_libraries_min_js}}"></script>
     <script src="js/{{env['sha_' + tmpl.base + '_min_js']}}"></script>
