@@ -27,29 +27,29 @@ ListDimension.prototype.headerHTML = function () { return this.values.map(functi
 ListDimension.prototype.minCount = function () { return this.values.length; };
 ListDimension.prototype.maxCount = function () { return this.values.length; };
 
-function YearDimension(t, init_headings) {
+function RangeDimension(t, init_headings) {
     var numeric_headings = numericItems(init_headings || [t.min, t.max]);
 
     this.initial = t.initial || [];
     this.min = Math.min.apply(null, numeric_headings);
     this.max = Math.max.apply(null, numeric_headings);
-    this.overall_min = t.overall_min || 1900;
-    this.overall_max = t.overall_max || 2050;
+    this.overall_min = t.overall_min || 1;
+    this.overall_max = t.overall_max || 100;
 }
-YearDimension.prototype.parameterHtml = function () {
+RangeDimension.prototype.parameterHtml = function () {
     return [
-        '<label>Start year: <input type="number" name="year_start" min="' + this.overall_min + '" max="' + this.overall_max + '" step="1" value="' + this.min + '" /></label>',
-        '<label>End year: <input type="number" name="year_end" min="' + this.overall_min + '" max="' + this.overall_max + '" step="1" value="' + this.max + '" /></label>',
+        '<label>Min: <input type="number" name="min" min="' + this.overall_min + '" max="' + this.overall_max + '" step="1" value="' + this.min + '" /></label>',
+        '<label>Max: <input type="number" name="max" min="' + this.overall_min + '" max="' + this.overall_max + '" step="1" value="' + this.max + '" /></label>',
     ].join("\n");
 };
-YearDimension.prototype.headers = function () { return this.initial.concat(sequence(this.min, this.max)); };
-YearDimension.prototype.headerHTML = YearDimension.prototype.headers;
-YearDimension.prototype.minCount = function () { return this.initial.length + this.max - this.min + 1; };
-YearDimension.prototype.maxCount = function () { return this.initial.length + this.max - this.min + 1; };
-YearDimension.prototype.update = function (paramEl, hot, e) {
-    var oldHeaders, newHeaders,
-        startEl = paramEl.querySelector("input[name=year_start]"),
-        endEl = paramEl.querySelector("input[name=year_end]");
+RangeDimension.prototype.headers = function () { return this.initial.concat(sequence(this.min, this.max)); };
+RangeDimension.prototype.headerHTML = RangeDimension.prototype.headers;
+RangeDimension.prototype.minCount = function () { return this.initial.length + this.max - this.min + 1; };
+RangeDimension.prototype.maxCount = function () { return this.initial.length + this.max - this.min + 1; };
+RangeDimension.prototype.update = function (paramEl, hot, e) {
+    var i, oldHeaders, newHeaders,
+        startEl = paramEl.querySelector("input[name=min]"),
+        endEl = paramEl.querySelector("input[name=max]");
 
     // make sure other end of range is configured appropriately
     if (e.target.id === startEl.id) {
@@ -103,63 +103,39 @@ YearDimension.prototype.update = function (paramEl, hot, e) {
     }
 };
 
-function BinsDimension(t, init_headings) {
-    this.count = init_headings ? init_headings.length : t.count;
-    this.overall_max = t.overall_max || 1000;
+// YearDimension inherits RangeDimension
+function YearDimension(t, init_headings) {
+    RangeDimension.apply(this, arguments);
+
+    this.overall_min = t.overall_min || 1900;
+    this.overall_max = t.overall_max || 2050;
 }
-BinsDimension.prototype.parameterHtml = function () {
+YearDimension.prototype = Object.create(RangeDimension.prototype);
+YearDimension.prototype.parameterHtml = function () {
     return [
-        '<label>Bins: <input type="number" name="bin_count" min="0" max="' + this.overall_max + '" step="1" value="' + this.count + '" /></label>',
+        '<label>Start year: <input type="number" name="min" min="' + this.overall_min + '" max="' + this.overall_max + '" step="1" value="' + this.min + '" /></label>',
+        '<label>End year: <input type="number" name="max" min="' + this.overall_min + '" max="' + this.overall_max + '" step="1" value="' + this.max + '" /></label>',
     ].join("\n");
 };
-BinsDimension.prototype.headers = function () { return sequence(1, this.count); };
-BinsDimension.prototype.headerHTML = BinsDimension.prototype.headers;
-BinsDimension.prototype.minCount = function () { return this.count; };
-BinsDimension.prototype.maxCount = function () { return this.count; };
-BinsDimension.prototype.update = function (paramEl, hot, e) {
-    var oldHeaders, newHeaders,
-        countEl = paramEl.querySelector("input[name=bin_count]");
 
-    this.count = parseInt(countEl.value, 10);
+// BinsDimension inherits RangeDimension
+function BinsDimension(t, init_headings) {
+    RangeDimension.apply(this, arguments);
 
-    // Work out which headers are missing
-    newHeaders = this.headers();
-
-    // Add/remove items to bottom until they line up
-    hot.updateSettings({
-        minCols: 0,
-        maxCols: newHeaders.length,
-    });
-    while (true) {
-        oldHeaders = hot.getColHeader();
-
-        if (oldHeaders[0] > newHeaders[0]) {
-            // Bottom is higher than we need, add one smaller
-            oldHeaders.unshift(oldHeaders[0] - 1);
-            hot.alter('insert_col', 0);
-        } else if (oldHeaders[0] < newHeaders[0]) {
-            // Bottom is smaller than we need, remove one
-            oldHeaders.shift();
-            hot.alter('remove_col', 0);
-        } else if (oldHeaders[oldHeaders.length - 1] < newHeaders[newHeaders.length - 1]) {
-            // Top is smaller than we need, add one
-            oldHeaders.push(oldHeaders[oldHeaders.length - 1] + 1);
-            hot.alter('insert_col', oldHeaders.length);
-        } else if (oldHeaders[oldHeaders.length - 1] > newHeaders[newHeaders.length - 1]) {
-            // Top is bigger than we need, remove one
-            oldHeaders.pop();
-            hot.alter('remove_col', oldHeaders.length);
-        } else {
-            // We're done
-            break;
-        }
-
-        hot.updateSettings({
-            colHeaders: oldHeaders,
-        });
-    }
+    this.min = 1;
+    this.max = init_headings ? init_headings.length : t.count;
+    this.overall_min = t.overall_min || 1;
+    this.overall_max = t.overall_max || 1000;
+}
+BinsDimension.prototype = Object.create(RangeDimension.prototype);
+BinsDimension.prototype.parameterHtml = function () {
+    return [
+        '<input type="hidden" name="min" value="' + this.min + '" />',
+        '<label>Bins: <input type="number" name="max" min="' + this.overall_min + '" max="' + this.overall_max + '" step="1" value="' + this.max + '" /></label>',
+    ].join("\n");
 };
 
+/** Get a new dimension based on type */
 function get_dimension(t, init_headings) {
     return new ({
         list: ListDimension,

@@ -75,3 +75,18 @@ test('YearDimension', function (t) {
 
     t.end();
 });
+
+test('BinsDimension', function (t) {
+    var d;
+
+    d = get_dimension({type: 'bins', count: 5});
+    t.deepEqual(
+        d.headers(),
+        ['1', '2', '3', '4', '5'],
+        "Generated consecutive headers"
+    );
+    t.deepEqual(d.minCount(), 5, "mincount/maxcount equal");
+    t.deepEqual(d.maxCount(), 5, "mincount/maxcount equal");
+
+    t.end();
+});
