@@ -75,10 +75,10 @@ RangeDimension.prototype.update = function (paramEl, hot, e) {
         minCols: this.initial.length,
         maxCols: newHeaders.length,
     });
-    while (true) {
+    for (i = 0; i < 2000; i++) {
         if (oldHeaders[this.initial.length] > newHeaders[this.initial.length]) {
             // Bottom is higher than we need, add one smaller
-            oldHeaders.splice(this.initial.length, 0, oldHeaders[this.initial.length] - 1);
+            oldHeaders.splice(this.initial.length, 0, parseInt(oldHeaders[this.initial.length], 10) - 1);
             hot.alter('insert_col', this.initial.length);
         } else if (oldHeaders[this.initial.length] < newHeaders[this.initial.length]) {
             // Bottom is smaller than we need, remove one
@@ -86,7 +86,7 @@ RangeDimension.prototype.update = function (paramEl, hot, e) {
             hot.alter('remove_col', this.initial.length);
         } else if (oldHeaders[oldHeaders.length - 1] < newHeaders[newHeaders.length - 1]) {
             // Top is smaller than we need, add one
-            oldHeaders.push(oldHeaders[oldHeaders.length - 1] + 1);
+            oldHeaders.push(parseInt(oldHeaders[oldHeaders.length - 1], 10) + 1);
             hot.alter('insert_col', oldHeaders.length);
         } else if (oldHeaders[oldHeaders.length - 1] > newHeaders[newHeaders.length - 1]) {
             // Top is bigger than we need, remove one
@@ -100,6 +100,10 @@ RangeDimension.prototype.update = function (paramEl, hot, e) {
         hot.updateSettings({
             colHeaders: oldHeaders,
         });
+
+        if (i > 1000) {
+            throw new Error("Adding too many rows");
+        }
     }
 };
 
