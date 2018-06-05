@@ -124,10 +124,9 @@ YearDimension.prototype.parameterHtml = function () {
 
 // BinsDimension inherits RangeDimension
 function BinsDimension(t, init_headings) {
-    RangeDimension.apply(this, arguments);
+    t.min = 1;
+    RangeDimension.apply(this, [t, init_headings]);
 
-    this.min = 1;
-    this.max = init_headings ? init_headings.length : t.count;
     this.overall_min = t.overall_min || 1;
     this.overall_max = t.overall_max || 1000;
 }

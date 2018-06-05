@@ -79,7 +79,7 @@ test('YearDimension', function (t) {
 test('BinsDimension', function (t) {
     var d;
 
-    d = get_dimension({type: 'bins', count: 5});
+    d = get_dimension({type: 'bins', max: 5});
     t.deepEqual(
         d.headers(),
         ['1', '2', '3', '4', '5'],

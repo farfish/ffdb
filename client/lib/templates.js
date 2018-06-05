@@ -42,7 +42,7 @@ var dlmtool = [
         title: "Catch at age",
         description: "Age data should be in numbers.",
         orientation: "horizontal",
-        fields: {type: "bins", count: 10},
+        fields: {type: "bins", max: 10},
         values: {type: "year", min: 2000, max: 2010},
     },
     {
@@ -50,7 +50,7 @@ var dlmtool = [
         title: "Catch at length",
         description: "Length data should be in mm.",
         orientation: "horizontal",
-        fields: {type: "bins", count: 10},
+        fields: {type: "bins", max: 10},
         values: {type: "year", min: 2000, max: 2010, initial: ["Min Length"]},
         params: {rowHeaderWidth: 100},
     },
