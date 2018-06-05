@@ -59,7 +59,6 @@ RangeDimension.prototype.headers = function () {
     );
 };
 RangeDimension.prototype.headerHTML = function () {
-    console.log([this, this.max]);
     return this.initial.map(function (x) { return Array.isArray(x) ? x[1] : x; }).concat(
         sequence(this.min, this.max).map(function (x) { return this.prefix[1] + x; }.bind(this))
     );
