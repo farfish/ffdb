@@ -15,11 +15,6 @@ function sequence(min, max) {
     return out;
 }
 
-// Parse everything that is a number, ditch anything that didn't parse
-function numericItems(arr) {
-    return arr.map(Number).filter(function (x) { return !isNaN(x); });
-}
-
 function ListDimension(t) { this.values = t.values; }
 ListDimension.prototype.parameterHtml = function () { return ""; };
 ListDimension.prototype.headers = function () { return this.values.map(function (x) { return x[0]; }); };
@@ -28,13 +23,29 @@ ListDimension.prototype.minCount = function () { return this.values.length; };
 ListDimension.prototype.maxCount = function () { return this.values.length; };
 
 function RangeDimension(t, init_headings) {
-    var numeric_headings = numericItems(init_headings || [t.min, t.max]);
+    var numeric_headings;
 
     this.initial = t.initial || [];
-    this.min = Math.min.apply(null, numeric_headings);
-    this.max = Math.max.apply(null, numeric_headings);
     this.overall_min = t.overall_min || 1;
     this.overall_max = t.overall_max || 100;
+    this.prefix = t.prefix || ['', ''];
+
+    // Try to work out numeric headings based on init_headings inputs
+    numeric_headings = (init_headings || []).map(function (x) {
+        if (this.prefix[0] && x.indexOf(this.prefix[0]) === 0) {
+            x = x.substr(this.prefix[0].length);
+        }
+
+        return Number(x);
+    }.bind(this)).filter(function (x) { return !isNaN(x); });
+
+    // If we didn't get any, just use min/max
+    if (numeric_headings.length === 0) {
+        numeric_headings = [t.min, t.max];
+    }
+
+    this.min = Math.min.apply(null, numeric_headings);
+    this.max = Math.max.apply(null, numeric_headings);
 }
 RangeDimension.prototype.parameterHtml = function () {
     return [
@@ -42,14 +53,27 @@ RangeDimension.prototype.parameterHtml = function () {
         '<label>Max: <input type="number" name="max" min="' + this.overall_min + '" max="' + this.overall_max + '" step="1" value="' + this.max + '" /></label>',
     ].join("\n");
 };
-RangeDimension.prototype.headers = function () { return this.initial.concat(sequence(this.min, this.max)); };
-RangeDimension.prototype.headerHTML = RangeDimension.prototype.headers;
+RangeDimension.prototype.headers = function () {
+    return this.initial.map(function (x) { return Array.isArray(x) ? x[0] : x; }).concat(
+        sequence(this.min, this.max).map(function (x) { return this.prefix[0] + x; }.bind(this))
+    );
+};
+RangeDimension.prototype.headerHTML = function () {
+    console.log([this, this.max]);
+    return this.initial.map(function (x) { return Array.isArray(x) ? x[1] : x; }).concat(
+        sequence(this.min, this.max).map(function (x) { return this.prefix[1] + x; }.bind(this))
+    );
+};
 RangeDimension.prototype.minCount = function () { return this.initial.length + this.max - this.min + 1; };
 RangeDimension.prototype.maxCount = function () { return this.initial.length + this.max - this.min + 1; };
 RangeDimension.prototype.update = function (paramEl, hot, e) {
-    var i, oldHeaders, newHeaders,
+    var i, oldHeaders, newHeaders, self = this,
         startEl = paramEl.querySelector("input[name=min]"),
         endEl = paramEl.querySelector("input[name=max]");
+
+    function to_num(x, offset) {
+        return parseInt(x.substr(self.prefix[1].length), 10) + (offset || 0);
+    }
 
     // make sure other end of range is configured appropriately
     if (e.target.id === startEl.id) {
@@ -76,19 +100,19 @@ RangeDimension.prototype.update = function (paramEl, hot, e) {
         maxCols: newHeaders.length,
     });
     for (i = 0; i < 2000; i++) {
-        if (oldHeaders[this.initial.length] > newHeaders[this.initial.length]) {
+        if (to_num(oldHeaders[this.initial.length]) > to_num(newHeaders[this.initial.length])) {
             // Bottom is higher than we need, add one smaller
-            oldHeaders.splice(this.initial.length, 0, parseInt(oldHeaders[this.initial.length], 10) - 1);
+            oldHeaders.splice(this.prefix[1] + this.initial.length, 0, to_num(oldHeaders[this.initial.length], -1));
             hot.alter('insert_col', this.initial.length);
-        } else if (oldHeaders[this.initial.length] < newHeaders[this.initial.length]) {
+        } else if (to_num(oldHeaders[this.initial.length]) < to_num(newHeaders[this.initial.length])) {
             // Bottom is smaller than we need, remove one
             oldHeaders.splice(this.initial.length, 1);
             hot.alter('remove_col', this.initial.length);
-        } else if (oldHeaders[oldHeaders.length - 1] < newHeaders[newHeaders.length - 1]) {
+        } else if (to_num(oldHeaders[oldHeaders.length - 1]) < to_num(newHeaders[newHeaders.length - 1])) {
             // Top is smaller than we need, add one
-            oldHeaders.push(parseInt(oldHeaders[oldHeaders.length - 1], 10) + 1);
+            oldHeaders.push(this.prefix[1] + to_num(oldHeaders[oldHeaders.length - 1], 1));
             hot.alter('insert_col', oldHeaders.length);
-        } else if (oldHeaders[oldHeaders.length - 1] > newHeaders[newHeaders.length - 1]) {
+        } else if (to_num(oldHeaders[oldHeaders.length - 1]) > to_num(newHeaders[newHeaders.length - 1])) {
             // Top is bigger than we need, remove one
             oldHeaders.pop();
             hot.alter('remove_col', oldHeaders.length);

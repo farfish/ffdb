@@ -73,6 +73,18 @@ test('YearDimension', function (t) {
     t.deepEqual(yd.minCount(), 7, "mincount/maxcount equal");
     t.deepEqual(yd.maxCount(), 7, "mincount/maxcount equal");
 
+    yd = get_dimension({type: 'year', min: 1990, max: 1993, initial: ['woo', 'yay'], prefix: ["y_", "Year "]}, ['parp', 'y_2000', 'y_2001', 'y_2004']);
+    t.deepEqual(
+        yd.headers(),
+        ['woo', 'yay', 'y_2000', 'y_2001', 'y_2002', 'y_2003', 'y_2004'],
+        "Prefixed columns, used init_headings with values stripped off"
+    );
+    t.deepEqual(
+        yd.headerHTML(),
+        ['woo', 'yay', 'Year 2000', 'Year 2001', 'Year 2002', 'Year 2003', 'Year 2004'],
+        "HTML headings use different prefix"
+    );
+
     t.end();
 });
 
