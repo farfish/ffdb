@@ -158,7 +158,7 @@ BinsDimension.prototype = Object.create(RangeDimension.prototype);
 BinsDimension.prototype.parameterHtml = function () {
     return [
         '<input type="hidden" name="min" value="' + this.min + '" />',
-        '<label>Bins: <input type="number" name="max" min="' + this.overall_min + '" max="' + this.overall_max + '" step="1" value="' + this.max + '" /></label>',
+        '<label>' + (this.prefix[1] ? this.prefix[1] + 'Max' : 'Bins') + ': <input type="number" name="max" min="' + this.overall_min + '" max="' + this.overall_max + '" step="1" value="' + this.max + '" /></label>',
     ].join("\n");
 };
 
