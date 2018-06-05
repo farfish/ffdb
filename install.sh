@@ -148,6 +148,15 @@ cat <<EOF >> /etc/nginx/sites-available/${SERVICE_NAME}
     charset     utf-8;
     root "${PROJECT_PATH}/client/www";
     gzip        on;
+    gzip_proxied any;
+    gzip_types
+        text/css
+        text/javascript
+        text/xml
+        text/plain
+        application/javascript
+        application/x-javascript
+        application/json;
 
     proxy_intercept_errors on;
     error_page 502 503 504 /error/bad_gateway.json;
