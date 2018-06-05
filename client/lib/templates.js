@@ -30,10 +30,9 @@ var dlmtool = [
         description: " " +
             "Catch data should be in tonnes.",
         orientation: "vertical",
-        fields: {type: "list", values: [
+        fields: {type: "bins", max: 1, initial: [
             ["catch", "Catch"],
-            ["abundance_index", "Abundance index"],
-        ]},
+        ], prefix: ['abundance_index_', 'Abundance Index ']},
         values: {type: 'year', min: 2000, max: 2010},
         params: {rowHeaderWidth: 170},
     },
