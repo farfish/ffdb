@@ -28,7 +28,8 @@ var dlmtool = [
         name: "catch",
         title: "Catch data",
         description: " " +
-            "Catch data should be in tonnes.",
+            " Catch data should be in tonnes." +
+            " You can include more than one abundance index indicating it in the Abundance Index Max field.",
         orientation: "vertical",
         fields: {type: "bins", max: 1, initial: [
             ["catch", "Catch"],
