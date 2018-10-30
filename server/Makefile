@@ -1,17 +1,21 @@
-PROJECT=ffdb
+EGG_NAME=ffdb
+SHELL=/bin/bash -o pipefail
 
 all: compile test lint
-
-compile: lib/.requirements
-	./bin/pip install -e .
 
 bin/pip:
 	python3 -m venv .
 
-lib/.requirements: requirements.txt \
-    bin/pip
+lib/.requirements: requirements.txt requirements-to-freeze.txt setup.py bin/pip
+	# Install frozen requirements
 	./bin/pip install -r requirements.txt
+	# Make sure any new requirements are available
+	./bin/pip install -r requirements-to-freeze.txt
+	# Freeze the output at current state
+	./bin/pip freeze | grep -v egg=$(EGG_NAME) > requirements.txt
 	touch lib/.requirements
+
+compile: lib/.requirements
 
 start: lib/.requirements test
 	./bin/uwsgi \
@@ -19,9 +23,9 @@ start: lib/.requirements test
 	    --processes=1 --threads=1 \
 	    --enable-threads --thunder-lock \
 	    --honour-stdin \
-	    --mount /=$(PROJECT).web:app \
+	    --mount /=$(EGG_NAME).web:app \
 	    --chmod-socket=666 \
-	    -s /tmp/$(PROJECT)_uwsgi.development.sock
+	    -s /tmp/$(EGG_NAME)_uwsgi.development.sock
 
 clean:
 	rm -rf -- ./bin ./include ./lib ./local ./share
@@ -32,6 +36,6 @@ test: lib/.requirements
 	./bin/py.test tests/
 
 lint: lib/.requirements
-	./bin/flake8 --ignore=E501 ffdb/ tests/
+	./bin/flake8 --ignore=E501 $(EGG_NAME)/ tests/
 
 .PHONY: compile test lint start clean
