@@ -71,7 +71,7 @@ RangeDimension.prototype.update = function (paramEl, hot, e) {
         endEl = paramEl.querySelector("input[name=max]");
 
     function to_num(x, offset) {
-        return parseInt(x.substr(self.prefix[1].length), 10) + (offset || 0);
+        return (parseInt(x.substr(self.prefix[1].length), 10) + (offset || 0)).toString();
     }
 
     // make sure other end of range is configured appropriately
@@ -120,14 +120,14 @@ RangeDimension.prototype.update = function (paramEl, hot, e) {
             break;
         }
 
-        hot.updateSettings({
-            colHeaders: oldHeaders,
-        });
-
         if (i > 1000) {
             throw new Error("Adding too many rows");
         }
     }
+
+    hot.updateSettings({
+        colHeaders: oldHeaders,
+    });
 };
 
 // YearDimension inherits RangeDimension
