@@ -73,7 +73,7 @@ sha1_envvars = \
     done;
 
 www/js/libraries.min.js: package.json
-	mkdir -p www/js
+	mkdir -p $(dir $@)
 	(cd www/js && ln -sf ../../node_modules .)
 	$(NODE_CMD) node_modules/.bin/browserify \
 	        $(foreach l,$(LIBRARIES_JS),-r $(l)) \
@@ -83,12 +83,12 @@ www/js/libraries.min.js: package.json
 	$(call sha1_symlink,js,$@.mktmp,$@)
 
 www/css/libraries.min.css: package.json
-	mkdir -p www/css
+	mkdir -p $(dir $@)
 	cat $(LIBRARIES_CSS) > $@.mktmp
 	$(call sha1_symlink,css,$@.mktmp,$@)
 
 www/js/%.min.js: lib/%.js lib/*.js package.json
-	mkdir -p www/js
+	mkdir -p $(dir $@)
 	(cd www/js && ln -sf ../../lib .)
 	$(NODE_CMD) node_modules/.bin/browserify --debug \
 	        $(foreach l,$(LIBRARIES_JS),-x $(l)) \
@@ -101,7 +101,7 @@ www/js/%.min.js: lib/%.js lib/*.js package.json
 	$(call sha1_symlink,js,$@.mktmp,$@)
 
 www/css/%.min.css: lib/%.css lib/*.css package.json
-	mkdir -p www/css
+	mkdir -p $(dir $@)
 	(cd www/css && ln -sf ../../lib .)
 	$(NODE_CMD) node_modules/postcss-cli/bin/postcss \
 	    --config postcss.config.js \
@@ -119,4 +119,4 @@ www/%.html: lib/%.html $(filter-out %.html,$(OUT_FILES)) \
 	    $(NODE_CMD) build/html_compile.js $< $@.mktmp $^
 	mv $@.mktmp $@
 
-.PHONY: compile test start lint clean clean-unused
+.PHONY: compile test start lint clean clean-unused watch
