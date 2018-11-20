@@ -7,6 +7,7 @@ DB_NAME="$1"
 DB_USER="$2"
 DB_PASS="$3"
 PSQL="psql -X --set ON_ERROR_STOP=1 --set AUTOCOMMIT=off"
+DB_RO_USER="shiny"
 
 # Drop and/or create database
 if ${PSQL} -l | grep -q "${DB_NAME}"; then
@@ -47,6 +48,32 @@ GRANT SELECT, INSERT, UPDATE, DELETE
 ALTER DEFAULT PRIVILEGES
     IN SCHEMA public
     GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO ${DB_USER};
+
+COMMIT;
+EOF
+
+echo "=============== Create read-only DB user $DB_RO_USER"
+${PSQL} ${DB_NAME} -f - <<EOF
+DO
+\$do\$
+BEGIN
+   IF NOT EXISTS (SELECT
+                  FROM pg_catalog.pg_roles
+                  WHERE rolname = '${DB_RO_USER}') THEN
+      CREATE ROLE ${DB_RO_USER} WITH LOGIN;
+   END IF;
+END
+\$do\$;
+
+GRANT CONNECT ON DATABASE ${DB_NAME} TO ${DB_RO_USER};
+
+GRANT SELECT
+    ON ALL TABLES IN SCHEMA public
+    TO ${DB_RO_USER};
+
+ALTER DEFAULT PRIVILEGES
+    IN SCHEMA public
+    GRANT SELECT ON TABLES TO ${DB_RO_USER};
 
 COMMIT;
 EOF
