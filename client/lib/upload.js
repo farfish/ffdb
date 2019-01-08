@@ -5,14 +5,13 @@ var XLSX = require('xlsx');
 var file_loader = require('./file_loader.js');
 var FileSaver = require('file-saver');
 var jQuery = require('jquery');
-var generate_hots = require('./hot_generate.js').generate_hots;
+var Hodataframe = require('./hodf.js');
 var table_templates = require('./templates.js').table_templates;
-var hot_utils = require('./hot_utils.js');
 var selectize = require('selectize');
 var alert = require('alerts');
 alert.transitionTime = 300;
 
-var hots, file_select, template_select;
+var hodfs, file_select, template_select;
 
 /** Wrap a promise, enabling alerts and loading spinner */
 function do_work(p) {
@@ -24,6 +23,22 @@ function do_work(p) {
         document.querySelector('body').classList.remove('loading');
         alert(err, {className: "error"});
         throw err;
+    });
+}
+
+/**
+  * Given a template name and input data.frame
+  * Generate handsondataframe objects
+  */
+function generate_hodfs(tmpls, input_dfs) {
+    var tbl = document.getElementById("tbl");
+
+    tbl.innerHTML = "";
+    return tmpls.map(function (tmpl) {
+        var el = document.createElement("div");
+
+        tbl.appendChild(el);
+        return new Hodataframe(tmpl, el, (input_dfs || {})[tmpl.name]);
     });
 }
 
@@ -41,37 +56,8 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
     var sheets = {},
         filename = document.querySelector("#options *[name=filename]").value;
 
-    hots.map(function (hot, tableIndex) {
-        var i,
-            data,
-            tmpl = hots.tmpl[tableIndex],
-            out = { _headings: {} };
-
-        function return_ith_value(row) {
-            return row[i];
-        }
-
-        if (!tmpl.name) {
-            // Ignore informational blocks
-            return;
-        }
-        data = hot.getData();
-
-        out._headings.fields = hot.customData.fields.headers();
-        out._headings.values = hot.customData.values.headers();
-
-        // Turn table data into a data.frame-esque object of fields
-        for (i = 0; i < out._headings.fields.length; i++) {
-            if (tmpl.orientation === "vertical") {
-                // Map rows to values
-                out[out._headings.fields[i]] = data[i];
-            } else {
-                // Map columns to values
-                out[out._headings.fields[i]] = data.map(return_ith_value);
-            }
-        }
-
-        sheets[tmpl.name] = out;
+    hodfs.map(function (hodf, tableIndex) {
+        sheets[hodf.name] = hodf.getDataFrame();
     });
 
     do_work(window.fetch('/api/doc/dlmtool/' + encodeURIComponent(filename), {
@@ -112,31 +98,9 @@ document.querySelector("#options button[name=export]").addEventListener('click',
         return;
     }
 
-    hots.map(function (hot, tableIndex) {
-        var i,
-            data,
-            rowHeaders,
-            colHeaders,
-            tmpl = hots.tmpl[tableIndex];
-
-        if (!tmpl.name) {
-            // Ignore informational blocks
-            return;
-        }
-        data = hot.getData();
-        rowHeaders = hot.customData[tmpl.orientation === 'vertical' ? 'fields' : 'values'].headers();
-        colHeaders = hot.customData[tmpl.orientation === 'vertical' ? 'values' : 'fields'].headers();
-
-        // Add column header
-        data.unshift(colHeaders);
-
-        // Add row headers
-        for (i = 0; i < data.length; i++) {
-            data[i].unshift(i > 0 ? rowHeaders[i - 1] : null);
-        }
-
-        wb.SheetNames.push(tmpl.name);
-        wb.Sheets[tmpl.name] = XLSX.utils.aoa_to_sheet(data);
+    hodfs.map(function (hodf, tableIndex) {
+        wb.SheetNames.push(hodf.name);
+        wb.Sheets[hodf.name] = XLSX.utils.aoa_to_sheet(hodf.getAofA());
     });
 
     FileSaver.saveAs(new Blob(
@@ -147,23 +111,15 @@ document.querySelector("#options button[name=export]").addEventListener('click',
 
 document.querySelector("#options button[name=import]").addEventListener('click', function (e) {
     file_loader('import-csv', 'array', function (data) {
-        var data_dfs = {},
-            workbook = XLSX.read(new window.Uint8Array(data), {type: 'array'});
+        var workbook = XLSX.read(new window.Uint8Array(data), {type: 'array'});
 
-        hots.map(function (hot, tableIndex) {
-            var tmpl = hots.tmpl[tableIndex],
-                sheet = workbook.Sheets[tmpl.name];
+        hodfs = hodfs.map(function (hodf, tableIndex) {
+            var sheet = workbook.Sheets[hodf.name];
 
-            if (!sheet) {
-                return;
-            }
-
-            // Convert sheet -> aoa -> df
-            data_dfs[tmpl.name] = hot_utils.aofa_to_df(XLSX.utils.sheet_to_json(sheet, {header: 1}), tmpl.orientation);
+            // Replace with sheet data if available, or empty it
+            return hodf.replace(sheet ? XLSX.utils.sheet_to_json(sheet, {header: 1}) : {});
         });
-
-        // Replace tables with new data
-        hots = generate_hots(document.querySelector("select[name=template]").value, data_dfs);
+        jQuery('#buttons button').prop('disabled', false);
     });
 });
 
@@ -189,7 +145,8 @@ template_select = jQuery("select[name=template]").selectize({
 }).on('change', function (e) {
     if (window.serverless) {
         // Just show an empty template
-        hots = generate_hots(template_select.getValue(), {content: {}});
+        hodfs = generate_hodfs(table_templates[template_select.getValue()], {content: {}});
+        jQuery('#buttons button').prop('disabled', false);
         return;
     }
 
@@ -224,7 +181,8 @@ file_select = jQuery("select[name=filename]").selectize({
         }
         return response.json();
     }).then(function (data) {
-        hots = generate_hots(template_select.getValue(), data.content);
+        hodfs = generate_hodfs(table_templates[template_select.getValue()], data.content);
+        jQuery('#buttons button').prop('disabled', false);
     }));
 })[0].selectize;
 
