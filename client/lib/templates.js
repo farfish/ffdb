@@ -14,7 +14,9 @@ var dlmtool = [
             "Based on DLMtool package " +
             "(Tom Carruthers and Adrian Hordyk (2016). DLMtool: Data-Limited " +
             "Methods Toolkit. R package version 3.1. " +
-            "<a href=\"https://CRAN.R-project.org/package=DLMtool\">https://CRAN.R-project.org/package=DLMtool</a>).",
+            "<a href=\"https://CRAN.R-project.org/package=DLMtool\">https://CRAN.R-project.org/package=DLMtool</a>)." +
+            '</p><p>' +
+            'Once saved go to the <a href="/shiny/ffdb-dlmtool/">FFDB DLMtool page</a> to view results.',
         orientation: "vertical",
         fields: [
             {name: "species", title: "Species"},
