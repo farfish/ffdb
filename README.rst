@@ -39,17 +39,17 @@ Install nodejs and yarn to complile the front-end::
 Installation
 ------------
 
-First run make to configure::
-
-    make
-
-Then create a ``.local-conf`` for your site configuration, see the top of
+Create a ``.local-conf`` for your site configuration, see the top of
 ``install.sh`` for available options, and then create. For example::
 
     cat <<EOF > .local-conf
     SERVICE_MODE=production
     SERVER_NAME=ffdb.*
     EOF
+
+Run make to compile::
+
+    make
 
 Finally run install to create a systemd service and nginx configuration:
 
