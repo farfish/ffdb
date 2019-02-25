@@ -23,6 +23,7 @@ DB_SUDO_USER="${DB_SUDO_USER-postgres}"  # The user that has root access to DB
 DB_NAME="${DB_NAME-${SERVICE_NAME}_db}"  # The DB to create
 DB_USER="${DB_USER-${SERVICE_NAME}_user}"  # The credentials that the app will use
 DB_PASS="${DB_PASS-${SERVICE_NAME}_pass}"  # The credentials that the app will use
+DB_RO_USERS="${DB_RO_USERS-shiny}"  # Some read-only users with access to the DB
 UWSGI_BIN="${UWSGI_BIN-${PROJECT_PATH}/server/bin/uwsgi}"
 UWSGI_USER="${UWSGI_USER-nobody}"
 UWSGI_GROUP="${UWSGI_GROUP-nogroup}"
@@ -39,7 +40,7 @@ set | grep -E 'UWSGI|SERVICE'
 
 # ---------------------------
 # (re)create postgresql datbase
-(cd schema && sudo -u "${DB_SUDO_USER}" ./rebuild.sh "${DB_NAME}" "${DB_USER}" "${DB_PASS}"; ) || exit 1
+(cd schema && sudo -u "${DB_SUDO_USER}" ./rebuild.sh "${DB_NAME}" "${DB_USER}" "${DB_PASS}" ${DB_RO_USERS}; ) || exit 1
 
 # ---------------------------
 # Systemd unit file to run uWSGI
