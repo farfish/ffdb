@@ -26,6 +26,15 @@ function do_work(p) {
     });
 }
 
+function isDirty(dirty) {
+    var el = document.querySelector("#options button[name=save]");
+
+    if (dirty !== undefined) {
+        el.disabled = !dirty;
+    }
+    return !el.disabled;
+}
+
 /**
   * Given a template name and input data.frame
   * Generate handsondataframe objects
@@ -34,11 +43,28 @@ function generate_hodfs(tmpls, input_dfs) {
     var tbl = document.getElementById("tbl");
 
     tbl.innerHTML = "";
+    isDirty(false);
+    document.querySelector("#options button[name=import]").disabled = false;
+    document.querySelector("#options button[name=export]").disabled = false;
+
     return tmpls.map(function (tmpl) {
-        var el = document.createElement("div");
+        var out, el = document.createElement("div");
 
         tbl.appendChild(el);
-        return new Hodataframe(tmpl, el, (input_dfs || {})[tmpl.name]);
+        out = new Hodataframe(tmpl, el, (input_dfs || {})[tmpl.name]);
+
+        // Notify surrounding code on changes
+        out.hot.addHook('afterChange', function (changes, source) {
+            if (source === 'edit') {
+                isDirty(true);
+            }
+        });
+        out.hot.addHook('afterCreateCol', isDirty.bind(null, true));
+        out.hot.addHook('afterCreateRow', isDirty.bind(null, true));
+        out.hot.addHook('afterRemoveCol', isDirty.bind(null, true));
+        out.hot.addHook('afterRemoveRow', isDirty.bind(null, true));
+
+        return out;
     });
 }
 
@@ -74,6 +100,7 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
             text: data.document_name + " (v" + data.version + ")",
         });
         alert("Saved", { className: "success", timeout: 3000 });
+        isDirty(false);
     }));
 });
 
@@ -119,7 +146,6 @@ document.querySelector("#options button[name=import]").addEventListener('click',
             // Replace with sheet data if available, or empty it
             return hodf.replace(sheet ? XLSX.utils.sheet_to_json(sheet, {header: 1}) : {});
         });
-        jQuery('#buttons button').prop('disabled', false);
     });
 });
 
@@ -142,16 +168,25 @@ template_select = jQuery("select[name=template]").selectize({
             this.setValue(templates[0]);
         }.bind(this)));
     },
-}).on('change', function (e) {
-    if (window.serverless) {
-        // Just show an empty template
-        hodfs = generate_hodfs(table_templates[template_select.getValue()], {content: {}});
-        jQuery('#buttons button').prop('disabled', false);
-        return;
-    }
+    onChange: function (value) {
+        if (this.ffdb_old_value === this.getValue()) {
+            return;
+        }
+        if (isDirty() && !window.confirm("You have unsaved changes, press OK to delete them")) {
+            this.setValue(this.ffdb_old_value);
+            return;
+        }
+        this.ffdb_old_value = this.getValue();
 
-    // Trigger file_select to update
-    file_select.onSearchChange('');
+        if (window.serverless) {
+            // Just show an empty template
+            hodfs = generate_hodfs(table_templates[template_select.getValue()], {content: {}});
+            return;
+        }
+
+        // Trigger file_select to update
+        file_select.onSearchChange('');
+    },
 })[0].selectize;
 
 file_select = jQuery("select[name=filename]").selectize({
@@ -170,20 +205,29 @@ file_select = jQuery("select[name=filename]").selectize({
             }));
         }));
     },
-    create: true,
-}).on('change', function (e) {
-    do_work(window.fetch('/api/doc/' + encodeURIComponent(template_select.getValue()) + '/' + encodeURIComponent(e.target.value), {
-        method: "GET",
-    }).then(function (response) {
-        if (response.status === 404) {
-            // We're starting a new document
-            return {content: {}};
+    onChange: function (value) {
+        if (this.ffdb_old_value === this.getValue()) {
+            return;
         }
-        return response.json();
-    }).then(function (data) {
-        hodfs = generate_hodfs(table_templates[template_select.getValue()], data.content);
-        jQuery('#buttons button').prop('disabled', false);
-    }));
+        if (isDirty() && !window.confirm("You have unsaved changes, press OK to delete them")) {
+            this.setValue(this.ffdb_old_value);
+            return;
+        }
+        this.ffdb_old_value = this.getValue();
+
+        do_work(window.fetch('/api/doc/' + encodeURIComponent(template_select.getValue()) + '/' + encodeURIComponent(file_select.getValue()), {
+            method: "GET",
+        }).then(function (response) {
+            if (response.status === 404) {
+                // We're starting a new document
+                return {content: {}};
+            }
+            return response.json();
+        }).then(function (data) {
+            hodfs = generate_hodfs(table_templates[template_select.getValue()], data.content);
+        }));
+    },
+    create: true,
 })[0].selectize;
 
 // Hide controls that aren't relevant
