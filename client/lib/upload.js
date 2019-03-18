@@ -172,7 +172,7 @@ template_select = jQuery("select[name=template]").selectize({
         if (this.ffdb_old_value === this.getValue()) {
             return;
         }
-        if (isDirty() && !window.confirm("You have unsaved changes, press OK to delete them")) {
+        if (isDirty() && !window.confirm("You have unsaved changes, to save them press Cancel and 'Save to database'. Press OK to lose them.")) {
             this.setValue(this.ffdb_old_value);
             return;
         }
