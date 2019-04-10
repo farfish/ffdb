@@ -160,7 +160,11 @@ cat <<EOF >> /etc/nginx/sites-available/${SERVICE_NAME}
         application/json;
 
     proxy_intercept_errors on;
-    error_page 502 503 504 /error/bad_gateway.json;
+    error_page 502 503 504 @bad_gateway;
+
+    location @bad_gateway {
+        return 502 '{"error": "BadGateway", "message": "The FFDB server is not responding"}';
+    }
 
     location /api {
         ${NGINX_LOGIN_COND}

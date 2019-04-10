@@ -26,6 +26,17 @@ function do_work(p) {
     });
 }
 
+function api_fetch(url, args) {
+    return window.fetch(url, args).then(function (response) {
+        if (response.status >= 500) {
+            return response.json().then(function (data) {
+                throw new Error(data.error + ": " + data.message);
+            });
+        }
+        return response;
+    });
+}
+
 function isDirty(dirty) {
     var el = document.querySelector("#options button[name=save]");
 
@@ -86,7 +97,7 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
         sheets[hodf.name] = hodf.getDataFrame();
     });
 
-    do_work(window.fetch('/api/doc/dlmtool/' + encodeURIComponent(filename), {
+    do_work(api_fetch('/api/doc/dlmtool/' + encodeURIComponent(filename), {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -192,7 +203,7 @@ template_select = jQuery("select[name=template]").selectize({
 file_select = jQuery("select[name=filename]").selectize({
     loadThrottle: null,
     load: function (query, callback) {
-        return do_work(window.fetch('/api/doc/dlmtool', {
+        return do_work(api_fetch('/api/doc/dlmtool', {
             method: "GET",
         }).then(function (response) {
             return response.json();
@@ -215,7 +226,7 @@ file_select = jQuery("select[name=filename]").selectize({
         }
         this.ffdb_old_value = this.getValue();
 
-        do_work(window.fetch('/api/doc/' + encodeURIComponent(template_select.getValue()) + '/' + encodeURIComponent(file_select.getValue()), {
+        do_work(api_fetch('/api/doc/' + encodeURIComponent(template_select.getValue()) + '/' + encodeURIComponent(file_select.getValue()), {
             method: "GET",
         }).then(function (response) {
             if (response.status === 404) {
