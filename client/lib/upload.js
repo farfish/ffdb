@@ -28,8 +28,11 @@ function do_work(p) {
 
 function api_fetch(url, args) {
     return window.fetch(url, args).then(function (response) {
-        if (response.status >= 500) {
+        if (response.status === 401 || response.status >= 500) {
             return response.json().then(function (data) {
+                if (data.redirect) {
+                    window.document.location = data.redirect;
+                }
                 throw new Error(data.error + ": " + data.message);
             });
         }

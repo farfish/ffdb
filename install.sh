@@ -24,6 +24,8 @@ DB_NAME="${DB_NAME-${SERVICE_NAME}_db}"  # The DB to create
 DB_USER="${DB_USER-${SERVICE_NAME}_user}"  # The credentials that the app will use
 DB_PASS="${DB_PASS-${SERVICE_NAME}_pass}"  # The credentials that the app will use
 DB_RO_USERS="${DB_RO_USERS-shiny}"  # Some read-only users with access to the DB
+APP_LOGIN_URL="${APP_LOGIN_URL-}"  # URL to redirect users to if they need to login
+APP_LOGIN_CHECK_BASE="${APP_LOGIN_CHECK_BASE-}"  # URL to visit to see if login cookie works
 UWSGI_BIN="${UWSGI_BIN-${PROJECT_PATH}/server/bin/uwsgi}"
 UWSGI_USER="${UWSGI_USER-nobody}"
 UWSGI_GROUP="${UWSGI_GROUP-nogroup}"
@@ -47,6 +49,8 @@ set | grep -E 'UWSGI|SERVICE'
 
 cat <<EOF > "${SERVICE_ENV}"
 DB_DSN="host=127.0.0.1 dbname=${DB_NAME} user=${DB_USER} password=${DB_PASS}"
+APP_LOGIN_URL=${APP_LOGIN_URL}
+APP_LOGIN_CHECK_BASE=${APP_LOGIN_CHECK_BASE}
 EOF
 chmod 600 -- "${SERVICE_ENV}"
 
