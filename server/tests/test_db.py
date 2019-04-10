@@ -24,6 +24,14 @@ class TestDB(RequiresPostgresql, unittest.TestCase):
             self.assertEqual(db.list_documents(cursor, 'tmpl0'), [dict(document_name='doc0', latest=1)])
             self.assertEqual(db.list_documents(cursor, 'tmpl1'), [])
 
+            # Get it again
+            self.assertEqual(db.get_document(cursor, 'tmpl0', 'doc0'), dict(
+                template_name='tmpl0',
+                document_name='doc0',
+                version=1,
+                content=dict(cows=['daisy']),
+            ))
+
             # Can store new versions
             self.assertEqual(db.store_document(cursor, 'tmpl0', 'doc0', dict(cows=['daisy', 'freda'])), dict(
                 template_name='tmpl0',
@@ -33,6 +41,14 @@ class TestDB(RequiresPostgresql, unittest.TestCase):
             ))
             self.assertEqual(db.list_documents(cursor, 'tmpl0'), [dict(document_name='doc0', latest=2)])
             self.assertEqual(db.list_documents(cursor, 'tmpl1'), [])
+
+            # Get it again
+            self.assertEqual(db.get_document(cursor, 'tmpl0', 'doc0'), dict(
+                template_name='tmpl0',
+                document_name='doc0',
+                version=2,
+                content=dict(cows=['daisy', 'freda']),
+            ))
 
             # ...or new documents
             self.assertEqual(db.store_document(cursor, 'tmpl0', 'doc1', dict(pigs=['george'])), dict(

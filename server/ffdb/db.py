@@ -59,7 +59,6 @@ def get_document(c, template_name, document_name):
     x = c.fetchone()
     if x is None:
         raise NotFound("%s/%s" % (template_name, document_name))
-    version, content_string = x
 
     return dict(
         template_name=template_name,
