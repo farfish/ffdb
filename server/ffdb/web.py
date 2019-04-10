@@ -71,7 +71,7 @@ def get_document(template_name, document_name):
 def store_document(template_name, document_name):
     with current_app.pool.acquire() as connection:
         with connection.cursor() as cursor:
-            return jsonify(db.store_document(cursor, template_name, document_name, request.json))
+            return jsonify(db.store_document(cursor, template_name, document_name, g.username, request.json))
 
 
 # ==== Error handlers =====================================

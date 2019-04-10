@@ -16,18 +16,19 @@ def list_documents(c, template_name):
     return c.fetchall()
 
 
-def store_document(c, template_name, document_name, content):
+def store_document(c, template_name, document_name, author, content):
     version = 1
     while True:
         try:
             c.execute('''
                 INSERT INTO document
-                (template_name, document_name, version, content)
-                VALUES (%s, %s, %s, %s)
+                (template_name, document_name, version, author, content)
+                VALUES (%s, %s, %s, %s, %s)
             ''', (
                 template_name,
                 document_name,
                 version,
+                author,
                 Json(content),
             ))
             c.connection.commit()
@@ -43,6 +44,7 @@ def store_document(c, template_name, document_name, content):
         template_name=template_name,
         document_name=document_name,
         version=version,
+        author=author,
         content=content,
     )
 
@@ -50,7 +52,7 @@ def store_document(c, template_name, document_name, content):
 def get_document(c, template_name, document_name):
     """Fetch a single document"""
     c.execute('''
-        SELECT version, content
+        SELECT version, author, content
         FROM document
         WHERE template_name = %s
         AND document_name = %s
@@ -64,6 +66,7 @@ def get_document(c, template_name, document_name):
         template_name=template_name,
         document_name=document_name,
         version=x['version'],
+        author=x['author'],
         content=x['content'],
     )
 

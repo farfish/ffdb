@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS document (
     version                  INT NOT NULL DEFAULT 1,
     PRIMARY KEY (template_name, document_name, version),
 
+    author                   TEXT,
     content                  JSONB NOT NULL
 );
 
