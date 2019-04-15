@@ -3,7 +3,7 @@ coverage==4.5.1
 flake8==3.5.0
 Flask==1.0.2
 itsdangerous==0.24
-Jinja2==2.10
+Jinja2==2.10.1
 MarkupSafe==1.0
 mccabe==0.6.1
 pg8000==1.11.0
