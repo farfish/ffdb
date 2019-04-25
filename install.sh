@@ -17,7 +17,6 @@ SERVER_CERT_PATH="${SERVER_CERT_PATH-}"  # e.g. /etc/nginx/ssl/certs
 SERVICE_NAME="${SERVICE_NAME-ffdb}"
 SERVICE_FILE="${SERVICE_FILE-/etc/systemd/system/${SERVICE_NAME}.service}"
 SERVICE_ENV="${SERVICE_ENV-${PROJECT_PATH}/${SERVICE_NAME}.env}"
-NGINX_WP_SITE="${NGINX_WP_SITE-}"
 NGINX_EXTRA_LOCATIONS="${NGINX_EXTRA_LOCATIONS-}"
 DB_SUDO_USER="${DB_SUDO_USER-postgres}"  # The user that has root access to DB
 DB_NAME="${DB_NAME-${SERVICE_NAME}_db}"  # The DB to create
@@ -96,9 +95,9 @@ fi
 # NGINX config for serving clientside
 
 # If a wordpress site is defined, only serve pages if there's a cookie
-[ -n "${NGINX_WP_SITE}" ] && NGINX_LOGIN_COND="
-        if (\$http_cookie !~* \"wordpress_logged_in_[^=]*=([^%]+)%7C\") {
-            rewrite ^ https://${NGINX_WP_SITE}/login/ last;
+[ -n "${APP_LOGIN_URL}" ] && NGINX_LOGIN_COND="
+        if (\$http_cookie !~* \"wordpress_logged_in_[^=]*=\") {
+            rewrite ^ ${APP_LOGIN_URL} last;
         }"
 
 cat <<EOF > /etc/nginx/sites-available/${SERVICE_NAME}
