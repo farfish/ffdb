@@ -94,12 +94,6 @@ fi
 # ---------------------------
 # NGINX config for serving clientside
 
-# If a wordpress site is defined, only serve pages if there's a cookie
-[ -n "${APP_LOGIN_URL}" ] && NGINX_LOGIN_COND="
-        if (\$http_cookie !~* \"wordpress_logged_in_[^=]*=\") {
-            rewrite ^ ${APP_LOGIN_URL} last;
-        }"
-
 cat <<EOF > /etc/nginx/sites-available/${SERVICE_NAME}
 upstream uwsgi_server {
     server unix://${UWSGI_SOCKET};
@@ -170,7 +164,6 @@ cat <<EOF >> /etc/nginx/sites-available/${SERVICE_NAME}
     }
 
     location /api {
-        ${NGINX_LOGIN_COND}
         include uwsgi_params;
         uwsgi_pass  uwsgi_server;
     }
@@ -181,7 +174,6 @@ cat <<EOF >> /etc/nginx/sites-available/${SERVICE_NAME}
     }
 
     location / {
-        ${NGINX_LOGIN_COND}
         try_files \$uri \$uri.html /index.html;
     }
 ${NGINX_EXTRA_LOCATIONS}
