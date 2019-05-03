@@ -50,6 +50,9 @@ clean-unused:
 	    $(wildcard www/*/*.min.r*.*) \
 	); do rm -- $$f; done
 
+upgrade:
+	$(YARN) upgrade --latest
+
 watch:
 	while inotifywait -r lib; do make compile; done
 
@@ -119,4 +122,4 @@ www/%.html: lib/%.html $(filter-out %.html,$(OUT_FILES)) \
 	    $(NODE_CMD) build/html_compile.js $< $@.mktmp $^
 	mv $@.mktmp $@
 
-.PHONY: compile test start lint clean clean-unused watch
+.PHONY: compile test start lint clean clean-unused upgrade watch
