@@ -160,6 +160,8 @@ document.querySelector("#options button[name=import]").addEventListener('click',
             // Replace with sheet data if available, or empty it
             return hodf.replace(sheet ? XLSX.utils.sheet_to_json(sheet, {header: 1}) : {});
         });
+
+        isDirty(true);
     });
 });
 
