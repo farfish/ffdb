@@ -1,4 +1,4 @@
-Farfish FFDB content ingest
+FarFish FFDB content ingest
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This project provides a templated upload form for documents made up of any
