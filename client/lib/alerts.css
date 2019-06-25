@@ -13,12 +13,16 @@
 	transition: opacity .2s;
 }
 .alerts > div.success {
-	background-color: rgba(100, 200, 100, 0.2);
-	border: 1px solid rgba(100, 200, 100, 0.8);
+	background-color: hsla(120, 48%, 59%, 0.2);
+	border: 1px solid hsla(120, 48%, 59%, 0.8);
+}
+.alerts > div.warn {
+	background-color: hsla( 50, 48%, 59%, 0.2);
+	border: 1px solid hsla( 50, 48%, 59%, 0.8);
 }
 .alerts > div.error {
-	background-color: rgba(200, 100, 100, 0.2);
-	border: 1px solid rgba(200, 100, 100, 0.8);
+	background-color: hsla(  0, 48%, 59%, 0.2);
+	border: 1px solid hsla(  0, 48%, 59%, 0.8);
 }
 
 .alerts > .alert,

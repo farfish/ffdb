@@ -121,6 +121,12 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
     var sheets = {},
         filename = document.querySelector("#options *[name=filename]").value;
 
+    if (!filename) {
+        alert("You must enter a document name first", { className: "warn", timeout: 3000 });
+        file_select.focus();
+        return;
+    }
+
     hodfs.map(function (hodf, tableIndex) {
         sheets[hodf.name] = hodf.getDataFrame();
     });
@@ -161,7 +167,8 @@ document.querySelector("#options button[name=export]").addEventListener('click',
     }
 
     if (!filename) {
-        window.alert("You must enter a filename in the box above");
+        alert("You must enter a document name first", { className: "warn", timeout: 3000 });
+        file_select.focus();
         return;
     }
 
@@ -203,6 +210,7 @@ document.querySelector("#options button[name=new]").addEventListener('click', fu
 
 file_select = jQuery("select[name=filename]").selectize({
     persist: false,
+    createOnBlur: true,
     onChange: function (value) {
         if (!value || this.options[value].new_option) {
             // Ignore any newly-created items, wait for save to be pressed
