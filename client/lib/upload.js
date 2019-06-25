@@ -7,6 +7,7 @@ var FileSaver = require('file-saver');
 var jQuery = require('jquery');
 var Hodataframe = require('hodf');
 var table_templates = require('./templates.js').table_templates;
+var queryString = require('query-string');
 var selectize = require('selectize');
 var alert = require('alerts');
 alert.transitionTime = 300;
@@ -43,11 +44,11 @@ function api_fetch(url, args) {
 }
 
 function parse_location(loc) {
-    var parts = loc.search.replace(/^\?/, '').split('/');
-    return {
-        template: decodeURIComponent(parts[0] || 'dlmtool'),
-        filename: decodeURIComponent(parts[1] || ''),
-    };
+    var out = queryString.parse(loc.search);
+
+    out.template = out.template || 'dlmtool';
+    out.filename = out.filename || '';
+    return out;
 }
 
 function replace_location(new_state) {
@@ -56,7 +57,7 @@ function replace_location(new_state) {
     if (!new_state.template) {
         new_state.template = parse_location(window.location).template;
     }
-    new_search = '?' + encodeURIComponent(new_state.template) + '/' + encodeURIComponent(new_state.filename);
+    new_search = '?' + queryString.stringify(new_state);
 
     if (new_search !== window.location.search) {
         window.history.replaceState("", "", new_search);

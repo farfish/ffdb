@@ -13,6 +13,7 @@
     "hodf": "shuttlethread/hodf",
     "jquery": "^3.4.1",
     "papaparse": "^4.6.3",
+    "query-string": "5",
     "selectize": "^0.12.6",
     "tape-promise": "^4.0.0",
     "whatwg-fetch": "^3.0.0",
