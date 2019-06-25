@@ -1,6 +1,10 @@
 @import "lib/alerts.css";
 @import "lib/page-layout.css";
 
+body>section {
+    margin: 1rem;
+}
+
 abbr[title] {
     text-decoration: underline;
 }

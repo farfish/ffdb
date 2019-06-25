@@ -1,14 +1,48 @@
 html {
     background-color: transparent;
 }
-body {
-    max-width: 960px;
-    margin: 1rem auto;
+
+nav {
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e1e1e1;
+    height: 100px;
+    font-family: "Open Sans", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: bolder;
+    font-size: 13px;
+    text-transform: uppercase;
+}
+nav > *, nav > a:link, nav > a:visited {
+    display: inline-block;
+    line-height: 98px;
+    margin-right: 1rem;
+    color: #808080;
+}
+nav > *:first-child {
+    margin-left: 2rem;
+}
+nav > *.right {
+    float: right;
+    margin-right: 2rem;
+}
+nav a:active, nav a:hover {
+    border-bottom: 2px solid #2d5c88;
+    color: #333;
+    text-decoration: none;
+}
+nav a.selected {
+    color: #333;
+}
+
+
+body > section {
+    min-height: calc(100vh - 10rem - 2rem - 100px);
 }
 
 footer {
-    border-top: 1px solid black;
-    padding-top: 1rem;
+    padding: 1rem;
+    min-height: 10rem;
+    background-color: #222;
+    color: #CCC;
 }
 footer > img {
     float: left;
@@ -42,6 +76,7 @@ body.loading:after {
   position: absolute;
   top: 50%;
   left: 50%;
+  z-index: 10;
 
   width: 80px;
   height: 80px;

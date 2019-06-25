@@ -1,6 +1,7 @@
 @import "lib/alerts.css";
 @import "lib/page-layout.css";
 
-h3 {
-    clear: left;
+body>section {
+    max-width: 960px;
+    margin: 1rem auto;
 }
