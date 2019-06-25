@@ -31,24 +31,18 @@
 
     <ul id="options">
       <li>
-        <label>Upload type: <select name="template" style="width: 10rem;">
-        </select></label>
         <label class="filename">Document name: <select name="filename" class="form-control" style="width: 30rem;" data-tags="true">
         </select></label>
+        <button name="save" disabled="disabled">Save to database</button>
       </li>
       <li id="buttons">
-        <button name="save" disabled="disabled">Save to database</button>
-        <button name="export" disabled="disabled">Export as spreadsheet</button>
-        <button name="import" disabled="disabled">Import spreadsheet</button>
+        <button name="new">Clear and start a new document</button>
+        <button name="export">Export as spreadsheet</button>
+        <button name="import">Import spreadsheet</button>
       </li>
     </ul>
 
     <div id="tbl">
-    <p>
-      Select a document name from the box above or enter a new file name to start a new record.
-      Select "test-content" to see an example on how to fill a data-base record.
-      Go to the <a href="/shiny/ffdb-dlmtool/">FFDB DLMtool page</a> to view results.
-    </p>
     </div>
 
     </section>

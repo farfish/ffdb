@@ -11,7 +11,7 @@ var selectize = require('selectize');
 var alert = require('alerts');
 alert.transitionTime = 300;
 
-var hodfs, file_select, template_select;
+var hodfs, file_select;
 
 /** Wrap a promise, enabling alerts and loading spinner */
 function do_work(p) {
@@ -28,7 +28,7 @@ function do_work(p) {
 
 function api_fetch(url, args) {
     return window.fetch(url, args).then(function (response) {
-        if (response.status === 401 || response.status >= 500) {
+        if (response.status !== 200) {
             return response.json().then(function (data) {
                 if (data.redirect) {
                     window.document.location = data.redirect;
@@ -37,7 +37,31 @@ function api_fetch(url, args) {
             });
         }
         return response;
+    }).then(function (response) {
+        return response.json();
     });
+}
+
+function parse_location(loc) {
+    var parts = loc.search.replace(/^\?/, '').split('/');
+    return {
+        template: decodeURIComponent(parts[0] || 'dlmtool'),
+        filename: decodeURIComponent(parts[1] || ''),
+    };
+}
+
+function replace_location(new_state) {
+    var new_search;
+
+    if (!new_state.template) {
+        new_state.template = parse_location(window.location).template;
+    }
+    new_search = '?' + encodeURIComponent(new_state.template) + '/' + encodeURIComponent(new_state.filename);
+
+    if (new_search !== window.location.search) {
+        window.history.replaceState("", "", new_search);
+        window.dispatchEvent(new window.PopStateEvent('popstate', { state: {} }));
+    }
 }
 
 function isDirty(dirty) {
@@ -106,8 +130,6 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
             "Content-Type": "application/json",
         },
         body: JSON.stringify(sheets),
-    }).then(function (response) {
-        return response.json();
     }).then(function (data) {
         file_select.updateOption(data.document_name, {
             value: data.document_name,
@@ -115,6 +137,9 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
         });
         alert("Saved", { className: "success", timeout: 3000 });
         isDirty(false);
+        replace_location({
+            filename: filename,
+        });
     }));
 });
 
@@ -165,86 +190,81 @@ document.querySelector("#options button[name=import]").addEventListener('click',
     });
 });
 
-template_select = jQuery("select[name=template]").selectize({
-    preload: true,
-    loadThrottle: null,
-    load: function (query, callback) {
-        var templates = Object.keys(table_templates);
+document.querySelector("#options button[name=new]").addEventListener('click', function (e) {
+    if (isDirty() && !window.confirm("You have unsaved changes, press OK to delete them")) {
+        return;
+    }
 
-        do_work(new Promise(function (resolve) {
-            callback(templates.map(function (x) {
-                return {
-                    value: x,
-                    text: x,
-                };
-            }));
-            resolve();
-        }).then(function () {
-            // Choose first value, trigger change
-            this.setValue(templates[0]);
-        }.bind(this)));
-    },
-    onChange: function (value) {
-        if (this.ffdb_old_value === this.getValue()) {
-            return;
-        }
-        if (isDirty() && !window.confirm("You have unsaved changes, to save them press Cancel and 'Save to database'. Press OK to lose them.")) {
-            this.setValue(this.ffdb_old_value);
-            return;
-        }
-        this.ffdb_old_value = this.getValue();
-
-        if (window.serverless) {
-            // Just show an empty template
-            hodfs = generate_hodfs(table_templates[template_select.getValue()], {content: {}});
-            return;
-        }
-
-        // Trigger file_select to update
-        file_select.onSearchChange('');
-    },
-})[0].selectize;
+    replace_location({
+        filename: '',
+    });
+});
 
 file_select = jQuery("select[name=filename]").selectize({
-    loadThrottle: null,
-    load: function (query, callback) {
-        return do_work(api_fetch('/api/doc/dlmtool', {
-            method: "GET",
-        }).then(function (response) {
-            return response.json();
-        }).then(function (data) {
-            callback(data.documents.map(function (x) {
-                return {
-                    value: x.document_name,
-                    text: x.document_name + " (v" + x.latest + ")",
-                };
-            }));
-        }));
-    },
+    persist: false,
     onChange: function (value) {
+        if (!value || this.options[value].new_option) {
+            // Ignore any newly-created items, wait for save to be pressed
+            return;
+        }
+
         if (this.ffdb_old_value === this.getValue()) {
             return;
         }
         if (isDirty() && !window.confirm("You have unsaved changes, press OK to delete them")) {
-            this.setValue(this.ffdb_old_value);
+            this.setValue(this.ffdb_old_value, true);
             return;
         }
         this.ffdb_old_value = this.getValue();
 
-        do_work(api_fetch('/api/doc/' + encodeURIComponent(template_select.getValue()) + '/' + encodeURIComponent(file_select.getValue()), {
-            method: "GET",
-        }).then(function (response) {
-            if (response.status === 404) {
-                // We're starting a new document
-                return {content: {}};
-            }
-            return response.json();
-        }).then(function (data) {
-            hodfs = generate_hodfs(table_templates[template_select.getValue()], data.content);
-        }));
+        replace_location({
+            filename: file_select.getValue(),
+        });
     },
-    create: true,
+    create: function (input) {
+        return {
+            value: input,
+            text: input + ' (new)',
+            new_option: true,
+        };
+    },
 })[0].selectize;
+
+window.onpopstate = function () {
+    var state = parse_location(window.location);
+
+    file_select.setValue(state.filename, true);
+
+    return do_work(Promise.resolve().then(function () {
+        if (!state.filename) {
+            return {content: {}};
+        }
+
+        return api_fetch('/api/doc/' + encodeURIComponent(state.template) + '/' + encodeURIComponent(state.filename), {
+            method: "GET",
+        });
+    }).then(function (data) {
+        hodfs = generate_hodfs(table_templates[state.template], data.content);
+    }));
+};
+
+document.addEventListener('DOMContentLoaded', function (e) {
+    var state = parse_location(window.location);
+
+    return do_work(api_fetch('/api/doc/' + state.template, {
+        method: "GET",
+    }).then(function (data) {
+        data.documents.forEach(function (x) {
+            file_select.addOption({
+                value: x.document_name,
+                text: x.document_name + " (v" + x.latest + ")",
+            });
+        });
+        file_select.refreshOptions(false);
+    })).then(function () {
+        window.onpopstate();
+    });
+});
 
 // Hide controls that aren't relevant
 if (window.serverless) {
