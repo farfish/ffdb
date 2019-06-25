@@ -59,10 +59,8 @@ function replace_location(new_state) {
     }
     new_search = '?' + queryString.stringify(new_state);
 
-    if (new_search !== window.location.search) {
-        window.history.replaceState("", "", new_search);
-        window.dispatchEvent(new window.PopStateEvent('popstate', { state: {} }));
-    }
+    window.history.replaceState("", "", new_search);
+    window.dispatchEvent(new window.PopStateEvent('popstate', { state: {} }));
 }
 
 function isDirty(dirty) {
