@@ -119,7 +119,7 @@ function generate_hodfs(tmpls, input_dfs) {
   */
 document.querySelector("#options button[name=save]").addEventListener('click', function (e) {
     var sheets = {},
-        filename = document.querySelector("#options *[name=filename]").value;
+        filename = file_select.getValue();
 
     if (!filename) {
         alert("You must enter a document name first", { className: "warn", timeout: 3000 });
@@ -152,7 +152,7 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
 
 document.querySelector("#options button[name=export]").addEventListener('click', function (e) {
     var wb = { SheetNames: [], Sheets: {} },
-        filename = document.querySelector("#options *[name=filename]").value;
+        filename = file_select.getValue();
 
     function s2ab(s) {
         var i,
