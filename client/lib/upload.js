@@ -60,7 +60,7 @@ function replace_location(new_state) {
     new_search = '?' + queryString.stringify(new_state);
 
     window.history.replaceState("", "", new_search);
-    window.dispatchEvent(new window.PopStateEvent('popstate', { state: {} }));
+    window.onpopstate();
 }
 
 function isDirty(dirty) {
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         });
         file_select.refreshOptions(false);
     })).then(function () {
-        window.onpopstate();
+        return window.onpopstate();
     });
 });
 
