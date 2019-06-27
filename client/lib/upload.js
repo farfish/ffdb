@@ -212,6 +212,7 @@ file_select = jQuery("select[name=filename]").selectize({
     onChange: function (value) {
         if (!value || this.options[value].new_option) {
             // Ignore any newly-created items, wait for save to be pressed
+            this.ffdb_old_value = this.getValue();
             return;
         }
 
