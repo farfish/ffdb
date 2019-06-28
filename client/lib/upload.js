@@ -12,7 +12,7 @@ var selectize = require('selectize');
 var alert = require('alerts');
 alert.transitionTime = 300;
 
-var hodfs, file_select;
+var hodfs, file_select, default_lang = 'en';
 
 /** Wrap a promise, enabling alerts and loading spinner */
 function do_work(p) {
@@ -48,6 +48,7 @@ function parse_location(loc) {
 
     out.template = out.template || 'dlmtool';
     out.filename = out.filename || '';
+    out.lang = out.lang || default_lang;
     return out;
 }
 
@@ -88,7 +89,7 @@ function generate_hodfs(tmpls, input_dfs) {
         var out, el = document.createElement("div");
 
         tbl.appendChild(el);
-        out = new Hodataframe(tmpl, el, (input_dfs || {})[tmpl.name]);
+        out = new Hodataframe(tmpl, el, (input_dfs || {})[tmpl.name], '*');
 
         // Notify surrounding code on changes
         out.hot.addHook('afterChange', function (changes, source) {
@@ -238,8 +239,23 @@ file_select = jQuery("select[name=filename]").selectize({
     },
 })[0].selectize;
 
+document.querySelector('nav .languages').addEventListener('click', function (e) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    replace_location({
+        lang: e.target.getAttribute('hreflang'),
+    });
+});
+
 window.onpopstate = function () {
     var state = parse_location(window.location);
+
+    // Update page with current language
+    window.document.documentElement.setAttribute('lang', state.lang);
+    Array.prototype.forEach.call(document.querySelectorAll('nav .languages > a'), function (el) {
+        el.classList.toggle('selected', el.getAttribute('hreflang') === state.lang);
+    });
 
     file_select.setValue(state.filename, true);
 
@@ -257,7 +273,19 @@ window.onpopstate = function () {
 };
 
 document.addEventListener('DOMContentLoaded', function (e) {
-    var state = parse_location(window.location);
+    var state = parse_location(window.location),
+        template_langs;
+
+    // Assume first description in template contains all known languages
+    template_langs = Object.keys(table_templates[state.template][0].description);
+
+    // Default language is first language in navigator.languages that we know about
+    default_lang = (navigator.languages || []).find(function (x) { return template_langs.indexOf(x) > -1; }) || 'en';
+
+    // Fill in language selector
+    document.querySelector('nav .languages').innerHTML = template_langs.map(function (lang) {
+        return '<a href="?template=' + state.template + '&lang=' + lang + '" hreflang="' + lang + '">' + lang + '</a>';
+    }).join("\n");
 
     return do_work(api_fetch('/api/doc/' + state.template, {
         method: "GET",

@@ -2,6 +2,11 @@ html {
     background-color: transparent;
 }
 
+html:lang(en) *[lang]:not(:lang(en)) { display: none; }
+html:lang(es) *[lang]:not(:lang(es)) { display: none; }
+html:lang(fr) *[lang]:not(:lang(fr)) { display: none; }
+html *[lang].always-visible { display: inherit !important; }
+
 nav {
     margin-bottom: 1rem;
     border-bottom: 1px solid #e1e1e1;
@@ -11,18 +16,20 @@ nav {
     font-size: 13px;
     text-transform: uppercase;
 }
-nav > *, nav > a:link, nav > a:visited {
+nav > a {
     display: inline-block;
     line-height: 98px;
     margin-right: 1rem;
-    color: #808080;
 }
-nav > *:first-child {
+nav > a:first-child {
     margin-left: 2rem;
 }
-nav > *.right {
+nav > a.right {
     float: right;
     margin-right: 2rem;
+}
+nav a, nav a:link, nav a:visited {
+    color: #808080;
 }
 nav a:active, nav a:hover {
     border-bottom: 2px solid #2d5c88;
@@ -33,6 +40,11 @@ nav a.selected {
     color: #333;
 }
 
+nav .languages {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+}
 
 body > section {
     min-height: calc(100vh - 10rem - 2rem - 100px);
