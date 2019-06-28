@@ -4,70 +4,105 @@
 var dlmtool = [
     {
         name: "metadata",
-        title: "Data description",
-        description: " " +
-            "Please fill the form with all the data available for your " +
-            "stock, if you are not sure about the value of some category " +
-            "please enter 'NA'. If a field heading is underlined " +
-            "you can hover over for a more detailed description." +
-            '</p><p>' +
-            "Based on DLMtool package " +
-            "(Tom Carruthers and Adrian Hordyk (2016). DLMtool: Data-Limited " +
-            "Methods Toolkit. R package version 3.1. " +
-            "<a href=\"https://CRAN.R-project.org/package=DLMtool\">https://CRAN.R-project.org/package=DLMtool</a>)." +
-            '</p><p>' +
-            'Once saved go to the <a href="/shiny/ffdb-dlmtool/">FFDB DLMtool page</a> to view results.',
+        title: {
+            "en": "Data description",
+            "es": "Descripción de los datos",
+        },
+        description: {
+            "en": " " +
+                "Please fill the form with all the data available for your " +
+                "stock, if you are not sure about the value of some category " +
+                "please enter 'NA'. If a field heading is underlined " +
+                "you can hover over for a more detailed description." +
+                '<br/><br/>' +
+                "Based on DLMtool package " +
+                "(Tom Carruthers and Adrian Hordyk (2016). DLMtool: Data-Limited " +
+                "Methods Toolkit. R package version 3.1. " +
+                "<a href=\"https://CRAN.R-project.org/package=DLMtool\">https://CRAN.R-project.org/package=DLMtool</a>)." +
+                '<br/><br/>' +
+                'Once saved go to the <a href="/shiny/ffdb-dlmtool/">FFDB DLMtool page</a> to view results.',
+            "es": " " +
+                "Rellene el formulario con todos los datos disponibles para su stock. " +
+                "Si no está seguro del valor de alguna categoría, ingrese 'NA'. " +
+                "Si el encabezado de un campo está subrayado, " +
+                "puede desplazarse para obtener una descripción más detallada." +
+                '<br/><br/>' +
+                "Basado en el paquete DLMtool " +
+                "(Tom Carruthers and Adrian Hordyk (2016). DLMtool: Data-Limited " +
+                "Methods Toolkit. R package version 3.1. " +
+                "<a href=\"https://CRAN.R-project.org/package=DLMtool\">https://CRAN.R-project.org/package=DLMtool</a>)." +
+                '<br/><br/>' +
+                'Una vez guardado, vaya a la <a href="/shiny/ffdb-dlmtool/">página FFDB DLMtool</a> para ver los resultados.',
+        },
         orientation: "vertical",
         fields: [
-            {name: "species", title: "Species"},
-            {name: "location", title: "Location"},
-            {name: "case_study", title: "Case study"},
+            {name: "species", title: {"en": "Species", "es": "Especies"}},
+            {name: "location", title: {"en": "Location", "es": "Ubicación"}},
+            {name: "case_study", title: {"en": "Case study", "es": "Caso de estudio"}},
         ],
-        values: [{name: "value", title: "Value"}],
+        values: [{name: "value", title: {"en": "Value", "es": "Valor"}}],
         params: {rowHeaderWidth: 140},
     },
     {
         name: "catch",
-        title: "Catch data",
-        description: " " +
-            " Catch data should be in tonnes." +
-            " You can include more than one abundance index indicating it in the Abundance Index Max field.",
+        title: {"en": "Catch data", "es": "Datos de captura"},
+        description: {
+            "en": " " +
+                "Catch data should be in tonnes. " +
+                "You can include more than one abundance index indicating it in the Abundance Index Max field.",
+            "es": " " +
+                "Los datos de captura deben ser en toneladas. " +
+                "Puede incluir más de un índice de abundancia indicándolo en el campo Índice de abundancia máximo.",
+        },
         orientation: "vertical",
         fields: [
-            {name: "catch", title: "Catch"},
-            {name: 'abundance_index_1', title: 'Abundance Index'},
+            {name: "catch", title: {"en": "Catch", "es": "Captura"}},
+            {name: 'abundance_index_1', title: {"en": "Abundance Index", "es": "Indice de Abundancia"}},
         ],
         values: {type: 'year', min: 2000, max: 2010},
         params: {rowHeaderWidth: 170},
     },
     {
         name: "caa",
-        title: "Catch at age",
-        description: "Age data should be in numbers.",
+        title: {"en": "Catch at age", "es": "Atrapar a la edad"},
+        description: {
+            "en": "Age data should be in numbers.",
+            "es": "Los datos de edad deben estar en números.",
+        },
         orientation: "horizontal",
         fields: {type: "bins", max: 10},
         values: {type: "year", min: 2000, max: 2010},
     },
     {
         name: "cal",
-        title: "Catch at length",
-        description: "Length data should be in mm.",
+        title: {"en": "Catch at length", "es": "Atrapar a la longitud"},
+        description: {
+            "en": "Length data should be in mm.",
+            "es": "Los datos de longitud deben estar en mm.",
+        },
         orientation: "horizontal",
         fields: {type: "bins", max: 10},
         values: {type: "year", min: 2000, max: 2010, initial: [
-            {name: "Min Length", title: "Min Length"},
+            {name: "Min Length", title: {"en": "Min Length", "es": "Longitud mínima"}},
         ]},
         params: {rowHeaderWidth: 100},
     },
     {
         name: "constants",
-        title: "Constants",
-        description: " " +
-            "In the 'source' field write for each value a reference source, this " +
-            "could be a bibliographic or a database (e.g. www.fishbase.org, " +
-            "http://ramlegacy.org) if available. If you do not have a reference " +
-            "but you have some knowledge on the value or if a reference does not " +
-            "apply please enter 'NA'.",
+        title: {"en": "Constants", "es": "Constantes"},
+        description: {
+            "en": " " +
+                "In the 'source' field write for each value a reference source, this " +
+                "could be a bibliographic or a database (e.g. www.fishbase.org, " +
+                "http://ramlegacy.org) if available. If you do not have a reference " +
+                "but you have some knowledge on the value or if a reference does not " +
+                "apply please enter 'NA'.",
+            "es": " " +
+                "En el campo 'fuente', escriba para cada valor una fuente de referencia, " +
+                "esto podría ser una bibliografía o una base de datos (por ejemplo, www.fishbase.org, " +
+                "http://ramlegacy.org) si está disponible. Si no tiene una referencia pero tiene algún " +
+                "conocimiento sobre el valor o si una referencia no se aplica, ingrese 'NA'.",
+        },
         orientation: "vertical",
         fields: [
             {name: "avg_catch_over_time", title: 'Average catch over time t'}, // Mean of catch
@@ -92,15 +127,18 @@ var dlmtool = [
             {name: "ref_ofl_limit", title: '<abbr title="Reference Overfishing limit or reference catch limit e.g. previous catch recommendation">Reference Overfishing/catch limit</abbr>'},
         ],
         values: [
-            {name: "value", title: "Value"},
-            {name: "source", title: "Source"},
+            {name: "value", title: {"en": "Value", "es": "Valor"}},
+            {name: "source", title: {"en": "Source", "es": "Fuente"}},
         ],
         params: {rowHeaderWidth: 330},
     },
     {
         name: "cv",
-        title: "Coefficient of variation",
-        description: "CV is a measure of imprecision, i.e. how imprecise you think this value could be",
+        title: {"en": "Coefficient of variation", "es": "Coeficiente de variación"},
+        description: {
+            "en": "CV is a measure of imprecision, i.e. how imprecise you think this value could be",
+            "es": "CV es una medida de imprecisión, es decir, cuán imprecisa crees que podría ser este valor",
+        },
         orientation: "vertical",
         fields: [
             {name: "catch", title: "CV Catch"},
@@ -123,8 +161,8 @@ var dlmtool = [
             {name: "length_composition", title: "Imprecision in length composition data"},
         ],
         values: [
-            {name: "value", title: "Value"},
-            {name: "source", title: "Source"},
+            {name: "value", title: {"en": "Value", "es": "Valor"}},
+            {name: "source", title: {"en": "Source", "es": "Fuente"}},
         ],
         params: {rowHeaderWidth: 270},
     },
