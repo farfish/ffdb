@@ -301,9 +301,3 @@ document.addEventListener('DOMContentLoaded', function (e) {
         return window.onpopstate();
     });
 });
-
-// Hide controls that aren't relevant
-if (window.serverless) {
-    document.querySelector("#options button[name=save]").style.display = "none";
-    document.querySelector("label.filename").style.display = "none";
-}
