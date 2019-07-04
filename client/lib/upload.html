@@ -70,6 +70,14 @@
       This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement no. 727891.
     </footer>
 
+    {% if env.APP_GA_KEY %}
+      <script id="google-analytics-init">
+        window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+        ga('create', '{{env.APP_GA_KEY}}', 'auto');
+      </script>
+      <script async src='https://www.google-analytics.com/analytics.js'></script>
+    {% endif %}
+
     <script src="js/{{env.sha_polyfill_min_js}}"></script>
     <script src="js/{{env.sha_libraries_min_js}}"></script>
     <script src="js/{{env['sha_' + tmpl.base + '_min_js']}}"></script>

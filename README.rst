@@ -45,6 +45,7 @@ Create a ``.local-conf`` for your site configuration, see the top of
     cat <<EOF > .local-conf
     SERVICE_MODE=production
     SERVER_NAME=ffdb.*
+    APP_GA_KEY=UA-XXXXX-Y
     EOF
 
 Run make to compile::

@@ -141,6 +141,10 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
             value: data.document_name,
             text: data.document_name + " (v" + data.version + ")",
         });
+
+        if (window.ga) {
+            window.ga('send', 'event', 'widget', 'save', filename);
+        }
         alert("Saved", { className: "success", timeout: 3000 });
         isDirty(false);
         replace_location({
@@ -258,6 +262,11 @@ window.onpopstate = function () {
     });
 
     file_select.setValue(state.filename, true);
+
+    if (window.ga) {
+        window.ga('set', 'location', window.location.href);
+        window.ga('send', 'pageview');
+    }
 
     return do_work(Promise.resolve().then(function () {
         if (!state.filename) {
