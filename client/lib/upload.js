@@ -285,8 +285,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
     var state = parse_location(window.location),
         template_langs;
 
-    // Assume first description in template contains all known languages
-    template_langs = Object.keys(table_templates[state.template][0].description);
+    // Assume first title in template contains all known languages
+    template_langs = Object.keys(table_templates[state.template][0].title);
 
     // Default language is first language in navigator.languages that we know about
     default_lang = (navigator.languages || []).find(function (x) { return template_langs.indexOf(x) > -1; }) || 'en';
