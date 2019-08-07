@@ -25,7 +25,7 @@ var dlmtool = [
                 "Rellene el formulario con todos los datos disponibles para su stock. " +
                 "Si no está seguro del valor de alguna categoría, ingrese 'NA'. " +
                 "Si el encabezado de un campo está subrayado, " +
-                "puede desplazarse para obtener una descripción más detallada." +
+                "puede desplazarse sobre la línea para obtener una descripción más detallada." +
                 '<br/><br/>' +
                 "Basado en el paquete DLMtool " +
                 "(Tom Carruthers and Adrian Hordyk (2016). DLMtool: Data-Limited " +
@@ -36,7 +36,7 @@ var dlmtool = [
         },
         orientation: "vertical",
         fields: [
-            {name: "species", title: {"en": "Species", "es": "Especies"}},
+            {name: "species", title: {"en": "Species", "es": "Especie"}},
             {name: "location", title: {"en": "Location", "es": "Ubicación"}},
             {name: "case_study", title: {"en": "Case study", "es": "Caso de estudio"}},
         ],
@@ -57,14 +57,14 @@ var dlmtool = [
         orientation: "vertical",
         fields: [
             {name: "catch", title: {"en": "Catch", "es": "Captura"}},
-            {name: 'abundance_index_1', title: {"en": "Abundance Index", "es": "Indice de Abundancia"}},
+            {name: 'abundance_index_1', title: {"en": "Abundance Index", "es": "Índice de Abundancia"}},
         ],
         values: {type: 'year', min: 2000, max: 2010},
         params: {rowHeaderWidth: 170},
     },
     {
         name: "caa",
-        title: {"en": "Catch at age", "es": "Atrapar a la edad"},
+        title: {"en": "Catch at age", "es": "Distribución de capturas por edad"},
         description: {
             "en": "Age data should be in numbers.",
             "es": "Los datos de edad deben estar en números.",
@@ -75,7 +75,7 @@ var dlmtool = [
     },
     {
         name: "cal",
-        title: {"en": "Catch at length", "es": "Atrapar a la longitud"},
+        title: {"en": "Catch at length", "es": "Distribución de capturas por longitud"},
         description: {
             "en": "Length data should be in mm.",
             "es": "Los datos de longitud deben estar en mm.",
@@ -99,7 +99,7 @@ var dlmtool = [
                 "apply please enter 'NA'.",
             "es": " " +
                 "En el campo 'fuente', escriba para cada valor una fuente de referencia, " +
-                "esto podría ser una bibliografía o una base de datos (por ejemplo, www.fishbase.org, " +
+                "esto puede ser una bibliografía o una base de datos (por ejemplo, www.fishbase.org, " +
                 "http://ramlegacy.org) si está disponible. Si no tiene una referencia pero tiene algún " +
                 "conocimiento sobre el valor o si una referencia no se aplica, ingrese 'NA'.",
         },
@@ -137,7 +137,7 @@ var dlmtool = [
         title: {"en": "Coefficient of variation", "es": "Coeficiente de variación"},
         description: {
             "en": "CV is a measure of imprecision, i.e. how imprecise you think this value could be",
-            "es": "CV es una medida de imprecisión, es decir, cuán imprecisa crees que podría ser este valor",
+            "es": "CV es una medida de imprecisión, es decir, cuán impreciso crees que podría ser este valor",
         },
         orientation: "vertical",
         fields: [
