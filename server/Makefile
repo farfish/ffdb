@@ -15,6 +15,10 @@ lib/.requirements: requirements.txt requirements-to-freeze.txt setup.py bin/pip
 	./bin/pip freeze | grep -v egg=$(EGG_NAME) > requirements.txt
 	touch lib/.requirements
 
+upgrade:
+	./bin/pip install -r requirements-to-freeze.txt --upgrade
+	./bin/pip freeze | grep -v egg=$(EGG_NAME) > requirements.txt
+
 compile: lib/.requirements
 
 start: lib/.requirements test
@@ -38,4 +42,4 @@ test: lib/.requirements
 lint: lib/.requirements
 	./bin/flake8 --ignore=E501 $(EGG_NAME)/ tests/
 
-.PHONY: compile test lint start clean
+.PHONY: upgrade compile test lint start clean
