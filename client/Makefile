@@ -1,5 +1,5 @@
 GIT = git
-YARN = yarn
+NPM = npm
 NODE = node
 NODE != which node || which nodejs
 NODE_CMD = NODE_PATH="$(CURDIR)" $(NODE)
@@ -51,13 +51,13 @@ clean-unused:
 	); do rm -- $$f; done
 
 upgrade:
-	$(YARN) upgrade --latest
+	node_modules/.bin/npm-check --update
 
 watch:
 	while inotifywait -r lib; do make compile; done
 
-node_modules/: package.json yarn.lock
-	$(YARN)
+node_modules/: package.json package-lock.json
+	$(NPM) i
 	touch node_modules/
 
 yarn.lock:

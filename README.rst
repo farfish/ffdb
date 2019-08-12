@@ -26,15 +26,10 @@ Install the following server prerequisites::
         python3-venv python3-dev \
         postgresql
 
-Install nodejs and yarn to complile the front-end::
-
-    # See https://yarnpkg.com/lang/en/docs/install/
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-    sudo apt install nodejs yarn
+Install nodejs to complile the front-end::
 
     # NB: We need at least node >= 6.9.0, so you may need:
-    sudo apt install -t stretch-backports nodejs
+    sudo apt install -t stretch-backports nodejs npm
 
 Installation
 ------------
