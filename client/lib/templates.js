@@ -82,9 +82,10 @@ var dlmtool = [
         },
         orientation: "horizontal",
         fields: {type: "bins", max: 10},
-        values: {type: "year", min: 2000, max: 2010, initial: [
+        values: [
             {name: "Min Length", title: {"en": "Min Length", "es": "Longitud mínima"}},
-        ]},
+            {type: "year", min: 2000, max: 2010},
+        ],
         params: {rowHeaderWidth: 100},
     },
     {

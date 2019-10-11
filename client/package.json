@@ -10,7 +10,7 @@
     "datatables.net": "^1.10.19",
     "es6-promise": "^4.2.8",
     "file-saver": "^2.0.2",
-    "hodf": "shuttlethread/hodf",
+    "hodf": "github:shuttlethread/hodf",
     "jquery": "^3.4.1",
     "papaparse": "^5.0.1",
     "query-string": "5",
