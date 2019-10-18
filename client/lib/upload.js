@@ -7,6 +7,7 @@ var FileSaver = require('file-saver');
 var jQuery = require('jquery');
 var Hodataframe = require('hodf');
 var table_templates = require('./templates.js').table_templates;
+var table_fixups = require('./templates.js').table_fixups;
 var queryString = require('query-string');
 var selectize = require('selectize');
 var alert = require('alerts');
@@ -277,7 +278,7 @@ window.onpopstate = function () {
             method: "GET",
         });
     }).then(function (data) {
-        hodfs = generate_hodfs(table_templates[state.template], data.content);
+        hodfs = generate_hodfs(table_templates[state.template], table_fixups[state.template](data.content));
     }));
 };
 

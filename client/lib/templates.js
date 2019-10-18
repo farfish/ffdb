@@ -1,5 +1,5 @@
 "use strict";
-/*jslint todo: true */
+/*jslint todo: true, nomen: true */
 
 var dlmtool = [
     {
@@ -57,9 +57,17 @@ var dlmtool = [
         orientation: "vertical",
         fields: [
             {name: "catch", title: {"en": "Catch", "es": "Captura"}},
-            {name: 'abundance_index_1', title: {"en": "Abundance Index", "es": "Índice de Abundancia"}},
         ],
-        values: {type: 'year', min: 2000, max: 2010},
+        values: {type: 'timeseries', min: 2000, max: 2010},
+    },
+    {
+        name: "abundance_index",
+        title: {"en": "Abundance Index", "es": "Índice de Abundancia "},
+        orientation: "vertical",
+        fields: [
+            {type: "bins", max: 1, prefix: {name: 'abundance_index_', title: {"en": "Abundance Index ", "es": "Índice de Abundancia "}}},
+        ],
+        values: {type: 'timeseries', min: 2000, max: 2010},
         params: {rowHeaderWidth: 170},
     },
     {
@@ -171,4 +179,22 @@ var dlmtool = [
 
 module.exports.table_templates = {
     dlmtool: dlmtool,
+};
+
+module.exports.table_fixups = {
+    dlmtool: function (doc) {
+        if (!doc.hasOwnProperty('abundance_index')) {
+            // Copy abundance index from catch table
+            doc.abundance_index = {
+                _headings: {
+                    fields: ['abundance_index_1'],
+                    values: doc.catch._headings.values,
+                },
+                abundance_index_1: doc.catch.abundance_index_1,
+            };
+            delete doc.catch.abundance_index_1;
+            doc.catch._headings.fields = doc.catch._headings.fields.filter(function (x) { return x === 'catch'; });
+        }
+        return doc;
+    },
 };
