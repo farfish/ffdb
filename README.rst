@@ -51,6 +51,19 @@ Finally run install to create a systemd service and nginx configuration:
 
     sudo ./install.sh
 
+Manual Upload / Download with cURL
+----------------------------------
+
+Download a document::
+
+    curl 'http://ffdb-host/api/doc/dlmtool/document_name''http://ffdb-host/api/doc/dlmtool/document_name'
+
+Upload a document::
+
+    curl -v -X PUT -H "Content-Type: application/json" \
+        -T file.json \
+        'http://ffdb-host/api/doc/dlmtool/document_name'
+
 References
 ----------
 
