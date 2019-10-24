@@ -24,7 +24,7 @@ Install the following server prerequisites::
     sudo apt install \
         nginx \
         python3-venv python3-dev \
-        postgresql
+        postgresql libpq-dev
 
 Install nodejs to complile the front-end::
 
