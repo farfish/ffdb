@@ -13,7 +13,7 @@ var selectize = require('selectize');
 var alert = require('alerts');
 alert.transitionTime = 300;
 
-var hodfs, file_select, default_lang = 'en';
+var hodfs = {}, file_select, default_lang = 'en';
 
 /** Wrap a promise, enabling alerts and loading spinner */
 function do_work(p) {
@@ -74,6 +74,27 @@ function isDirty(dirty) {
     return !el.disabled;
 }
 
+function tlate(obj, html_tag, sel_lang) {
+    if (!obj) {
+        return '';
+    }
+
+    if (typeof obj === 'string') {
+        return '<' + html_tag + '>' + obj + '</' + html_tag + '>';
+    }
+
+    if (sel_lang === '*') {
+        return Object.keys(obj).map(function (l) {
+            return '<' + html_tag + ' lang="' + l + '">' + obj[l] + '</' + html_tag + '>';
+        }).join("\n");
+    }
+
+    if (obj[sel_lang]) {
+        return '<' + html_tag + ' lang="' + sel_lang + '">' + obj[sel_lang] + '</' + html_tag + '>';
+    }
+    return '<' + html_tag + ' lang="en">' + obj.en + '</' + html_tag + '>';
+}
+
 /**
   * Given a template name and input data.frame
   * Generate handsondataframe objects
@@ -81,17 +102,29 @@ function isDirty(dirty) {
 function generate_hodfs(tmpls, input_dfs) {
     var tbl = document.getElementById("tbl");
 
-    tbl.innerHTML = "";
-    isDirty(false);
-    document.querySelector("#options button[name=import]").disabled = false;
-    document.querySelector("#options button[name=export]").disabled = false;
+    function parent_el(gp_el) {
+        var el = document.createElement("div");
+        gp_el.appendChild(el);
+        return el;
+    }
 
-    return tmpls.map(function (tmpl) {
-        var out, el = document.createElement("div");
+    function hodf(tmpl, parent_el, data, new_name) {
+        var out;
 
-        tbl.appendChild(el);
-        out = new Hodataframe(tmpl, el, (input_dfs || {})[tmpl.name], '*');
+        // If multiple, shallow copy and add name/title
+        if (tmpl.multiple) {
+            tmpl = Object.keys(tmpl).reduce(function (acc, k) {
+                acc[k] = tmpl[k];
+                return acc;
+            }, {});
 
+            tmpl.title = new_name.replace(tmpl.name + '_', '');
+            tmpl.name = new_name;
+        }
+
+        parent_el.setAttribute('class', 'hodf');
+        parent_el.setAttribute('data-name', tmpl.name);
+        out = new Hodataframe(tmpl, parent_el, data, '*');
         // Notify surrounding code on changes
         out.hot.addHook('afterChange', function (changes, source) {
             if (source === 'edit') {
@@ -104,6 +137,73 @@ function generate_hodfs(tmpls, input_dfs) {
         out.hot.addHook('afterRemoveRow', isDirty.bind(null, true));
 
         return out;
+    }
+
+    hodfs = {};
+    tbl.innerHTML = "";
+    input_dfs = input_dfs || {};
+    isDirty(false);
+    document.querySelector("#options button[name=import]").disabled = false;
+    document.querySelector("#options button[name=export]").disabled = false;
+
+    return tmpls.forEach(function (tmpl, tmpl_idx) {
+        var mult_el;
+
+        if (tmpl.multiple) {
+            mult_el = parent_el(tbl);
+
+            mult_el.appendChild((function () {
+                var el = document.createElement('div');
+                el.innerHTML = [
+                    tlate(tmpl.multiple.title, 'h3', '*'),
+                    tlate(tmpl.multiple.description, 'p', '*'),
+                    '<button class="btn btn-link">Add new...</button>',
+                ].join("");
+
+                el.lastChild.addEventListener('click', function (e) {
+                    var new_name = window.prompt(tmpl.multiple.title[document.documentElement.lang]);
+
+                    if (!new_name) {
+                        return;
+                    }
+                    if (new_name.match(/\W/)) {
+                        alert(new_name + " should only contain a-z,0-9,_", {className: "error"});
+                        return;
+                    }
+                    if (hodfs[new_name]) {
+                        alert(new_name + " already exists", {className: "error"});
+                        return;
+                    }
+                    new_name = tmpl.name + '_' + new_name;
+                    hodfs[new_name] = hodf(tmpl, parent_el(mult_el), null, new_name);
+                });
+
+                return el;
+            }()));
+
+            Object.keys(input_dfs).forEach(function (sub_name) {
+                if (sub_name.startsWith(tmpl.name + '_')) {
+                    hodfs[sub_name] = hodf(tmpl, parent_el(mult_el), input_dfs[sub_name], sub_name);
+                }
+            });
+
+        } else {
+            hodfs[tmpl.name] = hodf(tmpl, parent_el(tbl), input_dfs[tmpl.name]);
+        }
+    });
+}
+
+/**
+  * Fetch current HODF objects in display order
+  */
+function all_hodfs() {
+    return Array.prototype.map.call(document.querySelectorAll('div.hodf[data-name]'), function (hodf_el) {
+        var n = hodf_el.getAttribute('data-name');
+
+        if (hodfs[n]) {
+            return hodfs[n];
+        }
+        throw new Error('No HODF for ' + n);
     });
 }
 
@@ -127,7 +227,7 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
         return;
     }
 
-    hodfs.map(function (hodf, tableIndex) {
+    all_hodfs().map(function (hodf, tableIndex) {
         sheets[hodf.name] = hodf.getDataFrame();
     });
 
@@ -176,7 +276,7 @@ document.querySelector("#options button[name=export]").addEventListener('click',
         return;
     }
 
-    hodfs.map(function (hodf, tableIndex) {
+    all_hodfs().map(function (hodf, tableIndex) {
         wb.SheetNames.push(hodf.name);
         wb.Sheets[hodf.name] = XLSX.utils.aoa_to_sheet(hodf.getAofA());
     });
@@ -191,11 +291,11 @@ document.querySelector("#options button[name=import]").addEventListener('click',
     file_loader('import-csv', 'array', function (data) {
         var workbook = XLSX.read(new window.Uint8Array(data), {type: 'array'});
 
-        hodfs = hodfs.map(function (hodf, tableIndex) {
+        all_hodfs().forEach(function (hodf, tableIndex) {
             var sheet = workbook.Sheets[hodf.name];
 
             // Replace with sheet data if available, or empty it
-            return hodf.replace(sheet ? XLSX.utils.sheet_to_json(sheet, {header: 1}) : {});
+            hodfs[hodf.name] = hodf.replace(sheet ? XLSX.utils.sheet_to_json(sheet, {header: 1}) : {});
         });
 
         isDirty(true);
@@ -278,7 +378,7 @@ window.onpopstate = function () {
             method: "GET",
         });
     }).then(function (data) {
-        hodfs = generate_hodfs(table_templates[state.template], table_fixups[state.template](data.content));
+        generate_hodfs(table_templates[state.template], table_fixups[state.template](data.content));
     }));
 };
 
