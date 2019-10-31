@@ -62,7 +62,9 @@ var dlmtool = [
     },
     {
         name: "abundance_index",
-        title: {"en": "Abundance Index", "es": "Índice de Abundancia "},
+        multiple: {
+            title: {"en": "Abundance Index", "es": "Índice de Abundancia "},
+        },
         orientation: "vertical",
         fields: [
             {type: "bins", max: 1, prefix: {name: 'abundance_index_', title: {"en": "Abundance Index ", "es": "Índice de Abundancia "}}},
@@ -183,6 +185,7 @@ module.exports.table_templates = {
 
 module.exports.table_fixups = {
     dlmtool: function (doc) {
+        // v1 --> v2: Split abundance index from catch data
         if (!doc.hasOwnProperty('abundance_index') && doc.hasOwnProperty('catch')) {
             // Copy abundance index from catch table
             doc.abundance_index = {
@@ -194,6 +197,16 @@ module.exports.table_fixups = {
             };
             delete doc.catch.abundance_index_1;
             doc.catch._headings.fields = doc.catch._headings.fields.filter(function (x) { return x === 'catch'; });
+        }
+        // v2 --> v3: Split abundance indicies into their own table each
+        if (doc.hasOwnProperty('abundance_index')) {
+            doc.abundance_index._headings.fields.forEach(function (name) {
+                doc[name] = {
+                    _headings: { fields: ['index'], values: doc.abundance_index._headings.values },
+                    index: doc.abundance_index[name],
+                };
+            });
+            delete doc.catch.abundance_index;
         }
         return doc;
     },
