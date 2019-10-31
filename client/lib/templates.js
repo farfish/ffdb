@@ -183,7 +183,7 @@ module.exports.table_templates = {
 
 module.exports.table_fixups = {
     dlmtool: function (doc) {
-        if (!doc.hasOwnProperty('abundance_index')) {
+        if (!doc.hasOwnProperty('abundance_index') && doc.hasOwnProperty('catch')) {
             // Copy abundance index from catch table
             doc.abundance_index = {
                 _headings: {
