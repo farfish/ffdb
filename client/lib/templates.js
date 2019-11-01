@@ -186,7 +186,7 @@ module.exports.table_templates = {
 module.exports.table_fixups = {
     dlmtool: function (doc) {
         // v1 --> v2: Split abundance index from catch data
-        if (!doc.hasOwnProperty('abundance_index') && doc.hasOwnProperty('catch')) {
+        if (!doc.hasOwnProperty('abundance_index') && doc.hasOwnProperty('catch') && doc.catch.abundance_index_1) {
             // Copy abundance index from catch table
             doc.abundance_index = {
                 _headings: {
