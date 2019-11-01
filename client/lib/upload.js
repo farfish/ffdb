@@ -139,6 +139,10 @@ function generate_hodfs(tmpls, input_dfs) {
         return out;
     }
 
+    // Destroy anything existing and rebuild
+    Object.values(hodfs).forEach(function (hodf) {
+        hodf.hot.destroy();
+    });
     hodfs = {};
     tbl.innerHTML = "";
     input_dfs = input_dfs || {};
@@ -288,15 +292,18 @@ document.querySelector("#options button[name=export]").addEventListener('click',
 });
 
 document.querySelector("#options button[name=import]").addEventListener('click', function (e) {
+    var state = parse_location(window.location);
+
     file_loader('import-csv', 'array', function (data) {
-        var workbook = XLSX.read(new window.Uint8Array(data), {type: 'array'});
+        var input_dfs = {}, workbook = XLSX.read(new window.Uint8Array(data), {type: 'array'});
 
-        all_hodfs().forEach(function (hodf, tableIndex) {
-            var sheet = workbook.Sheets[hodf.name];
-
-            // Replace with sheet data if available, or empty it
-            hodfs[hodf.name] = hodf.replace(sheet ? XLSX.utils.sheet_to_json(sheet, {header: 1}) : {});
+        // Turn workbook into object full of AofAs
+        workbook.SheetNames.forEach(function (sheet_name) {
+            input_dfs[sheet_name] = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name], {header: 1});
         });
+
+        // Re-generate HODFs with this data
+        generate_hodfs(table_templates[state.template], input_dfs);
 
         isDirty(true);
     });
