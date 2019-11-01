@@ -48,11 +48,9 @@ var dlmtool = [
         title: {"en": "Catch data", "es": "Datos de captura"},
         description: {
             "en": " " +
-                "Catch data should be in tonnes. " +
-                "You can include more than one abundance index indicating it in the Abundance Index Max field.",
+                "Catch data should be in tonnes. ",
             "es": " " +
-                "Los datos de captura deben ser en toneladas. " +
-                "Puede incluir más de un índice de abundancia indicándolo en el campo Índice de abundancia máximo.",
+                "Los datos de captura deben ser en toneladas. ",
         },
         orientation: "vertical",
         fields: [
@@ -64,10 +62,16 @@ var dlmtool = [
         name: "abundance_index",
         multiple: {
             title: {"en": "Abundance Index", "es": "Índice de Abundancia "},
+            description: {
+                "en": " " +
+                    "Select 'custom months' if some periods are early/late to the norm, and you can override the month for that column. " +
+                    "You do not have to fill it in for all months.",
+            },
         },
         orientation: "vertical",
         fields: [
-            {type: "bins", max: 1, prefix: {name: 'abundance_index_', title: {"en": "Abundance Index ", "es": "Índice de Abundancia "}}},
+            {type: "optional", name: "month", title: {en: "Custom Months"}},
+            {name: "index", title: {"en": "Index", "es": "Índice"}},
         ],
         values: {type: 'timeseries', min: 2000, max: 2010},
         params: {rowHeaderWidth: 170},
