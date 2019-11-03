@@ -136,6 +136,23 @@ function generate_hodfs(tmpls, input_dfs) {
         out.hot.addHook('afterRemoveCol', isDirty.bind(null, true));
         out.hot.addHook('afterRemoveRow', isDirty.bind(null, true));
 
+        if (tmpl.multiple) {
+            // Add a remove button
+            parent_el.insertBefore((function () {
+                var el = document.createElement('button');
+
+                el.setAttribute('style', 'float: right;');
+                el.innerText = "×";
+                el.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    out.hot.destroy();
+                    parent_el.innerHTML = '';
+                    parent_el.parentElement.removeChild(parent_el);
+                });
+                return el;
+            }()), parent_el.firstChild);
+        }
+
         return out;
     }
 
