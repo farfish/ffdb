@@ -155,6 +155,7 @@ function generate_hodfs(tmpls, input_dfs) {
 
         if (tmpl.multiple) {
             mult_el = parent_el(tbl);
+            mult_el.setAttribute('class', 'multiple');
 
             mult_el.appendChild((function () {
                 var el = document.createElement('div');
