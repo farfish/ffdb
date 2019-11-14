@@ -14,14 +14,22 @@ abbr[title] {
     padding-bottom: 1rem;
 }
 
-#tbl > .multiple > * {
+#tbl > .multiple > .tables > * {
     padding-bottom: 1rem;
+}
+
+#tbl > .multiple > .buttons {
+    padding-top: 1rem;
 }
 
 #tbl > .multiple button.close {
     float: right;
     position: relative;
     top: 1rem;
+}
+
+.hodf .parameters select {
+    height: 30px;
 }
 
 #options li {

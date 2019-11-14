@@ -173,39 +173,43 @@ function generate_hodfs(tmpls, input_dfs) {
         if (tmpl.multiple) {
             mult_el = parent_el(tbl);
             mult_el.setAttribute('class', 'multiple');
+            mult_el.innerHTML = [
+                '<div class="titles">',
+                tlate(tmpl.multiple.title, 'h3', '*'),
+                tlate(tmpl.multiple.description, 'p', '*'),
+                '</div>',
+                '<div class="tables"></div>',
+                '<div class="buttons">',
+                tlate({en: 'Add new...', es: 'Agregar nuevo...'}, 'button', '*'),
+                '</div>',
+            ].join("");
 
-            mult_el.appendChild((function () {
-                var el = document.createElement('div');
-                el.innerHTML = [
-                    tlate(tmpl.multiple.title, 'h3', '*'),
-                    tlate(tmpl.multiple.description, 'p', '*'),
-                    '<button class="btn btn-link">Add new...</button>',
-                ].join("");
+            mult_el.querySelector('div.buttons').addEventListener('click', function (e) {
+                var new_name;
 
-                el.lastChild.addEventListener('click', function (e) {
-                    var new_name = window.prompt(tmpl.multiple.title[document.documentElement.lang]);
+                if (e.target.tagName !== 'BUTTON') {
+                    return;
+                }
 
-                    if (!new_name) {
-                        return;
-                    }
-                    if (new_name.match(/\W/)) {
-                        alert(new_name + " should only contain a-z,0-9,_", {className: "error"});
-                        return;
-                    }
-                    if (hodfs[new_name]) {
-                        alert(new_name + " already exists", {className: "error"});
-                        return;
-                    }
-                    new_name = tmpl.name + '_' + new_name;
-                    hodfs[new_name] = hodf(tmpl, parent_el(mult_el), null, new_name);
-                });
-
-                return el;
-            }()));
+                new_name = window.prompt(tmpl.multiple.title[document.documentElement.lang]);
+                if (!new_name) {
+                    return;
+                }
+                if (new_name.match(/\W/)) {
+                    alert(new_name + " should only contain a-z,0-9,_", {className: "error"});
+                    return;
+                }
+                if (hodfs[new_name]) {
+                    alert(new_name + " already exists", {className: "error"});
+                    return;
+                }
+                new_name = tmpl.name + '_' + new_name;
+                hodfs[new_name] = hodf(tmpl, parent_el(mult_el.querySelector('div.tables')), null, new_name);
+            });
 
             Object.keys(input_dfs).forEach(function (sub_name) {
                 if (sub_name.startsWith(tmpl.name + '_')) {
-                    hodfs[sub_name] = hodf(tmpl, parent_el(mult_el), input_dfs[sub_name], sub_name);
+                    hodfs[sub_name] = hodf(tmpl, parent_el(mult_el.querySelector('div.tables')), input_dfs[sub_name], sub_name);
                 }
             });
 
