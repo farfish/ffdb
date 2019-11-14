@@ -64,16 +64,18 @@ var dlmtool = [
             title: {"en": "Abundance Index", "es": "Índice de Abundancia "},
             description: {
                 "en": " " +
-                    "Select 'custom months' if some periods are early/late to the norm, and you can override the month for that column. " +
-                    "You do not have to fill it in for all months.",
+                    "First choose start and end year, then choose how frequent samples are, roughly. " +
+                    "Gaps are allowed in the data and will be filtered out. " +
+                    "If you do not enter a month, it will be assumed to be at the beginning of the year. " +
+                    "Data should be in tonnes."
             },
         },
         orientation: "vertical",
         fields: [
-            {type: "optional", name: "month", title: {en: "Custom Months"}},
+            {name: "month", title: {en: "Month"}},
             {name: "index", title: {"en": "Index", "es": "Índice"}},
         ],
-        values: {type: 'timeseries', min: 2000, max: 2010},
+        values: {type: 'timeseries', min: 2000, max: 2010, start_month: 1},
         params: {rowHeaderWidth: 170},
     },
     {
