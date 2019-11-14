@@ -141,7 +141,7 @@ function generate_hodfs(tmpls, input_dfs) {
             parent_el.insertBefore((function () {
                 var el = document.createElement('button');
 
-                el.setAttribute('style', 'float: right;');
+                el.setAttribute('class', 'close');
                 el.innerText = "×";
                 el.addEventListener('click', function (e) {
                     e.preventDefault();

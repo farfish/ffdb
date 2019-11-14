@@ -18,6 +18,12 @@ abbr[title] {
     padding-bottom: 1rem;
 }
 
+#tbl > .multiple button.close {
+    float: right;
+    position: relative;
+    top: 1rem;
+}
+
 #options li {
     list-style-type: none;
     margin-bottom: 0.3rem;
