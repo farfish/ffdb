@@ -212,6 +212,15 @@ module.exports.table_fixups = {
             });
             delete doc.catch.abundance_index;
         }
+        // Timeseries widget: Make sure values are mapped to a month
+        Object.keys(doc).forEach(function (tbl_name) {
+            if (tbl_name === 'catch' || tbl_name.indexOf('abundance_index_') === 0) {
+                doc[tbl_name]._headings.values = doc[tbl_name]._headings.values.map(function (x) {
+                    return x.indexOf("_") > -1 ? x : x + "_1";
+                });
+            }
+        });
+
         return doc;
     },
 };
