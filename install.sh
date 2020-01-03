@@ -83,6 +83,7 @@ NotifyAccess=all
 WantedBy=multi-user.target
 EOF
 
+systemctl daemon-reload
 if [ "${SERVICE_MODE}" = "production" ]; then
     [ -f "${UWSGI_SOCKET}" ] && chown ${UWSGI_USER}:${UWSGI_GROUP} "${UWSGI_SOCKET}"
     systemctl enable ${SERVICE_NAME}.service
