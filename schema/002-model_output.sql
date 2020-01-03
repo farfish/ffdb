@@ -28,7 +28,7 @@ DROP TRIGGER IF EXISTS trg_model_output_notify ON model_output;
 CREATE TRIGGER trg_model_output_notify
   AFTER INSERT ON model_output
       FOR EACH ROW
-       EXECUTE FUNCTION fn_model_output_notify();
+       EXECUTE PROCEDURE fn_model_output_notify();
 
 
 COMMIT;

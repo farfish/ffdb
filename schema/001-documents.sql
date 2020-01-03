@@ -25,7 +25,7 @@ DROP TRIGGER IF EXISTS trg_document_notify ON document;
 CREATE TRIGGER trg_document_notify
   AFTER INSERT ON document
       FOR EACH ROW
-       EXECUTE FUNCTION fn_document_notify();
+       EXECUTE PROCEDURE fn_document_notify();
 
 
 COMMIT;
