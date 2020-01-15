@@ -140,8 +140,6 @@ var dlmtool = [
             {name: "Length-weight_parameter_b", title: 'Length-weight param b (W=aLᵇ)'},
             {name: "maximum_age", title: 'Maximum age'},
             {name: "ref_ofl_limit", title: '<abbr title="Reference Overfishing limit or reference catch limit e.g. previous catch recommendation">Reference Overfishing/catch limit</abbr>'},
-            {name: "seaprod", title: 'SPiCT Seasonal Productivity', content: ['', 'Yes']},
-            {name: "timevaryinggrowth", title: 'SPiCT Time-varying growth', content: ['', 'Yes']},
         ],
         values: [
             {name: "value", title: {"en": "Value", "es": "Valor"}},
