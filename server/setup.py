@@ -4,6 +4,7 @@ requires = [
     'Flask',
     'uWSGI',
     'psycopg2',
+    'rpy2',
 ]
 
 tests_require = [
