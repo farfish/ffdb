@@ -56,22 +56,19 @@ def username_header(response):
 @app.route('/api/doc/<template_name>', methods=['GET'])
 def list_documents(template_name):
     with current_app.pool.acquire() as connection:
-        with connection.cursor() as cursor:
-            return jsonify(documents=db.list_documents(cursor, template_name))
+        return jsonify(documents=db.list_documents(connection, template_name))
 
 
 @app.route('/api/doc/<template_name>/<document_name>', methods=['GET'])
 def get_document(template_name, document_name):
     with current_app.pool.acquire() as connection:
-        with connection.cursor() as cursor:
-            return jsonify(db.get_document(cursor, template_name, document_name))
+        return jsonify(db.get_document(connection, template_name, document_name))
 
 
 @app.route('/api/doc/<template_name>/<document_name>', methods=['PUT'])
 def store_document(template_name, document_name):
     with current_app.pool.acquire() as connection:
-        with connection.cursor() as cursor:
-            return jsonify(db.store_document(cursor, template_name, document_name, g.username, request.json))
+        return jsonify(db.store_document(connection, template_name, document_name, g.username, request.json))
 
 
 # ==== Error handlers =====================================

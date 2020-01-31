@@ -6,6 +6,23 @@ from psycopg2.pool import ThreadedConnectionPool
 from werkzeug.exceptions import NotFound
 
 
+def with_cursor(fn):
+    """Turn connection argument into cursor, manage transaction"""
+    def _with_cursor(conn, *args, **kwargs):
+        try:
+            with conn.cursor() as c:
+                out = fn(c, *args, **kwargs)
+                conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            conn.close()
+        return out
+    return _with_cursor
+
+
+@with_cursor
 def list_documents(c, template_name):
     c.execute('''
         SELECT document_name, MAX(version) latest
@@ -16,6 +33,7 @@ def list_documents(c, template_name):
     return c.fetchall()
 
 
+@with_cursor
 def store_document(c, template_name, document_name, author, content):
     version = 1
     while True:
@@ -49,6 +67,7 @@ def store_document(c, template_name, document_name, author, content):
     )
 
 
+@with_cursor
 def get_document(c, template_name, document_name):
     """Fetch a single document"""
     c.execute('''

@@ -2,8 +2,6 @@ import os
 import os.path
 import subprocess
 
-import psycopg2
-from psycopg2.extras import RealDictCursor
 import testing.postgresql
 
 
@@ -35,13 +33,15 @@ class RequiresPostgresql():
 
         self.postgresql = testing.postgresql.Postgresql()
         initDatabase(self.postgresql)
-        self.conn = psycopg2.connect(**self.postgresql.dsn())
 
-    def cursor(self):
-        return self.conn.cursor(cursor_factory=RealDictCursor)
+    def dsn_string(self):
+        """Generate psycopg compatible dsn string to connect with"""
+        return " ".join(
+            "%s=%s" % ('dbname' if k == 'database' else k, v)
+            for k, v in self.postgresql.dsn().items()
+        )
 
     def tearDown(self):
-        self.conn.close()
         self.postgresql.stop()
 
         super(RequiresPostgresql, self).tearDown()
