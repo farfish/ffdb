@@ -1,4 +1,5 @@
 import os
+import os.path
 import subprocess
 
 import psycopg2
@@ -18,7 +19,7 @@ def runSqlScript(postgresql, script):
 
 
 def initDatabase(postgresql):
-    dir = '../schema'
+    dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'schema')
     for s in sorted(os.listdir(dir)):
         if not s.endswith('.sql'):
             continue
