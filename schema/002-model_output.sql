@@ -7,13 +7,11 @@ CREATE TABLE IF NOT EXISTS model_output (
     PRIMARY KEY (model_name, input_hash),
 
     input_rdata              BYTEA,
-    input_log                TEXT,
     output_path              TEXT NULL,
     output_log               TEXT
 );
 COMMENT ON TABLE model_output IS 'model input --> model output';
 COMMENT ON COLUMN model_output.input_hash IS 'Unique hash of input_rdata object';
-COMMENT ON COLUMN model_output.input_log IS 'Output/warnings whilst generating input';
 COMMENT ON COLUMN model_output.output_path IS 'Absolute path to output file';
 COMMENT ON COLUMN model_output.output_log IS 'Output/warnings whilst generating output';
 
