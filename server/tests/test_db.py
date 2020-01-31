@@ -19,21 +19,20 @@ class TestDB(RequiresPostgresql, unittest.TestCase):
 
         # Failures don't commit
         @db.with_cursor
-        def insert_then_fail(c, version):
+        def insert_then_fail(c):
             c.execute('''
                 INSERT INTO document
-                (template_name, document_name, version, content)
-                VALUES (%s, %s, %s, %s)
+                (template_name, document_name, content)
+                VALUES (%s, %s, %s)
             ''', (
                 "ut_test_with_cursor",
                 "ut_doc",
-                version,
                 Json(dict(a=1)),
             ))
             raise ValueError("Whoops")
         with self.assertRaisesRegex(ValueError, 'Whoops'):
             with pool.acquire() as conn:
-                insert_then_fail(conn, 1)
+                insert_then_fail(conn)
         with pool.acquire() as conn:
             self.assertEqual(db.list_documents(conn, 'ut_test_with_cursor'), [])
 

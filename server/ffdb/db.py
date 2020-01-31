@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-from psycopg2 import IntegrityError
 from psycopg2.extras import RealDictCursor, Json
 from psycopg2.pool import ThreadedConnectionPool
 
@@ -35,33 +34,28 @@ def list_documents(c, template_name):
 
 @with_cursor
 def store_document(c, template_name, document_name, author, content):
-    version = 1
-    while True:
-        try:
-            c.execute('''
-                INSERT INTO document
-                (template_name, document_name, version, author, content)
-                VALUES (%s, %s, %s, %s, %s)
-            ''', (
-                template_name,
-                document_name,
-                version,
-                author,
-                Json(content),
-            ))
-            c.connection.commit()
-            break
-        except IntegrityError as e:
-            if 'unique constraint "document_pkey"' in str(e):
-                version += 1
-                c.connection.rollback()
-                continue
-            raise
+    # Repeatedly try to insert, if another row beats us to the version then
+    # we'll block until it's done, then fail, after which can try again.
+    x = None
+    while x is None:
+        c.execute('''
+            INSERT INTO document
+            (template_name, document_name, author, content)
+            VALUES (%s, %s, %s, %s)
+            ON CONFLICT(template_name, document_name, version) DO NOTHING
+            RETURNING version
+        ''', (
+            template_name,
+            document_name,
+            author,
+            Json(content),
+        ))
+        x = c.fetchone()
 
     return dict(
         template_name=template_name,
         document_name=document_name,
-        version=version,
+        version=x['version'],
         author=author,
         content=content,
     )
