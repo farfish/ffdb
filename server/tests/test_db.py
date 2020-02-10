@@ -6,6 +6,19 @@ import ffdb.db as db
 from tests.requires_postgresql import RequiresPostgresql
 
 
+def ut_template_table(**fields):
+    out = dict(
+        _headings=dict(
+            fields=list(fields.keys()),
+            # 0..x for length of first field
+            values=list(range(len(fields[list(fields.keys())[0]]))),
+        )
+    )
+    for k, v in fields.items():
+        out[k] = v
+    return out
+
+
 class TestDB(RequiresPostgresql, unittest.TestCase):
     def test_with_cursor(self):
         """
@@ -56,6 +69,8 @@ class TestDB(RequiresPostgresql, unittest.TestCase):
                 version=1,
                 author="anon",
                 content=dict(cows=['daisy']),
+                model_errors={},
+                model_logs={},
             ))
         with pool.acquire() as conn:
             self.assertEqual(db.list_documents(conn, 'tmpl0'), [dict(document_name='doc0', latest=1)])
@@ -80,6 +95,8 @@ class TestDB(RequiresPostgresql, unittest.TestCase):
                 version=2,
                 author="anom",
                 content=dict(cows=['daisy', 'freda']),
+                model_errors={},
+                model_logs={},
             ))
         with pool.acquire() as conn:
             self.assertEqual(db.list_documents(conn, 'tmpl0'), [dict(document_name='doc0', latest=2)])
@@ -104,6 +121,8 @@ class TestDB(RequiresPostgresql, unittest.TestCase):
                 version=1,
                 author="agon",
                 content=dict(pigs=['george']),
+                model_errors={},
+                model_logs={},
             ))
         with pool.acquire() as conn:
             self.assertEqual(db.list_documents(conn, 'tmpl0'), [
@@ -121,6 +140,8 @@ class TestDB(RequiresPostgresql, unittest.TestCase):
                 version=1,
                 author="amon",
                 content=dict(pigs=['emily']),
+                model_errors={},
+                model_logs={},
             ))
         with pool.acquire() as conn:
             self.assertEqual(db.list_documents(conn, 'tmpl0'), [
@@ -131,3 +152,34 @@ class TestDB(RequiresPostgresql, unittest.TestCase):
             self.assertEqual(db.list_documents(conn, 'tmpl1'), [
                 dict(document_name='doc0', latest=1),
             ])
+
+    def test_model_inputs(self):
+        """
+        Model input data gets written back to DB
+        """
+        pool = db.create_pool(self.dsn_string())
+
+        with pool.acquire() as conn:
+            out = db.store_document(conn, 'ut_example', 'doc0', "anon", dict(
+                a=ut_template_table(a=[1]),
+                b=ut_template_table(err=["Oh noes"]),
+            ))
+            self.assertEqual(out['model_errors'], dict(
+                model_b='[1] "B went wrong!Oh noes"\n',
+            ))
+            self.assertEqual(out['model_logs'], dict(
+                model_a='',
+                model_b='',
+            ))
+
+        with pool.acquire() as conn:
+            out = db.store_document(conn, 'ut_example', 'doc0', "anon", dict(
+                a=ut_template_table(a=[1]),
+                b=ut_template_table(print=["Hello"]),
+            ))
+            self.assertEqual(out['model_errors'], dict(
+            ))
+            self.assertEqual(out['model_logs'], dict(
+                model_a='',
+                model_b='B has\nSome lines\nHello\n',
+            ))

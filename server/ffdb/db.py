@@ -4,6 +4,8 @@ from psycopg2.pool import ThreadedConnectionPool
 
 from werkzeug.exceptions import NotFound
 
+from ffdb.template import template_model_inputs
+
 
 def with_cursor(fn):
     """Turn connection argument into cursor, manage transaction"""
@@ -34,14 +36,35 @@ def list_documents(c, template_name):
 
 @with_cursor
 def store_document(c, template_name, document_name, author, content):
+    model_inputs = template_model_inputs(template_name, content)
+    model_errors = {}
+    model_logs = {}
+    input_hashes = {}
+    for model_name, inp in model_inputs.items():
+        model_logs[model_name] = inp['log']
+        if 'error' in inp:
+            # Store error for later
+            model_errors[model_name] = inp['error']
+        elif 'digest' in inp and 'rdata' in inp:
+            # Write individual inputs to DB
+            c.execute('''
+                INSERT INTO model_output (model_name, input_hash, input_rdata, output_path)
+                     VALUES (%s, %s, %s, NULL)
+                ON CONFLICT DO NOTHING
+            ''', (model_name, inp['digest'], inp['rdata']))
+            # Strip data for storing digest later
+            input_hashes[model_name] = inp['digest']
+        else:
+            raise ValueError("Malformed model_input %s: %s" % (model_name, inp))
+
     # Repeatedly try to insert, if another row beats us to the version then
     # we'll block until it's done, then fail, after which can try again.
     x = None
     while x is None:
         c.execute('''
             INSERT INTO document
-            (template_name, document_name, author, content)
-            VALUES (%s, %s, %s, %s)
+            (template_name, document_name, author, content, input_hashes)
+            VALUES (%s, %s, %s, %s, %s)
             ON CONFLICT(template_name, document_name, version) DO NOTHING
             RETURNING version
         ''', (
@@ -49,6 +72,7 @@ def store_document(c, template_name, document_name, author, content):
             document_name,
             author,
             Json(content),
+            Json(input_hashes),
         ))
         x = c.fetchone()
 
@@ -58,6 +82,8 @@ def store_document(c, template_name, document_name, author, content):
         version=x['version'],
         author=author,
         content=content,
+        model_errors=model_errors,
+        model_logs=model_logs,
     )
 
 
