@@ -279,9 +279,9 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
             ].join("\n"), { className: "warn" });
         } else {
             alert([
-                "Saved, started generating models for",
+                "Saved, started generating models for:",
                 Object.keys(data.model_logs).join(", "),
-            ], { className: "success", timeout: 3000 });
+            ].join("\n"), { className: "success", timeout: 3000 });
         }
         isDirty(false);
         replace_location({
