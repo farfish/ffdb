@@ -272,7 +272,17 @@ document.querySelector("#options button[name=save]").addEventListener('click', f
         if (window.ga) {
             window.ga('send', 'event', 'widget', 'save', filename);
         }
-        alert("Saved", { className: "success", timeout: 3000 });
+        if (Object.keys(data.model_errors).length > 0) {
+            alert([
+                "Saved, but problems generating model inputs:",
+                Object.keys(data.model_errors).map(function (k) { return k + ": " + data.model_errors[k]; }).join("\n"),
+            ].join("\n"), { className: "warn" });
+        } else {
+            alert([
+                "Saved, started generating models for",
+                Object.keys(data.model_logs).join(", "),
+            ], { className: "success", timeout: 3000 });
+        }
         isDirty(false);
         replace_location({
             filename: filename,
