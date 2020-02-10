@@ -417,7 +417,7 @@ window.onpopstate = function () {
             method: "GET",
         });
     }).then(function (data) {
-        var processing_models = Object.keys(data.model_status).filter(function (k) {
+        var processing_models = Object.keys(data.model_status || {}).filter(function (k) {
             return !data.model_status[k];
         });
 
