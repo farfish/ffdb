@@ -417,6 +417,16 @@ window.onpopstate = function () {
             method: "GET",
         });
     }).then(function (data) {
+        var processing_models = Object.keys(data.model_status).filter(function (k) {
+            return !data.model_status[k];
+        });
+
+        if (processing_models.length > 0) {
+            alert([
+                "Server still generating model outputs:",
+                processing_models.join("\n"),
+            ].join("\n"), { className: "warn", timeout: 3000 });
+        }
         generate_hodfs(table_templates[state.template], table_fixups[state.template](data.content));
     }));
 };

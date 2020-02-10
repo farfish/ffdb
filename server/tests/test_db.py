@@ -85,6 +85,7 @@ class TestDB(RequiresPostgresql, unittest.TestCase):
                 version=1,
                 author="anon",
                 content=dict(cows=['daisy']),
+                model_status={},
             ))
 
         # Can store new versions
@@ -111,6 +112,7 @@ class TestDB(RequiresPostgresql, unittest.TestCase):
                 version=2,
                 author="anom",
                 content=dict(cows=['daisy', 'freda']),
+                model_status={},
             ))
 
         # ...or new documents
@@ -173,7 +175,11 @@ class TestDB(RequiresPostgresql, unittest.TestCase):
             ))
 
         with pool.acquire() as conn:
-            out = db.store_document(conn, 'ut_example', 'doc0', "anon", dict(
+            out = db.get_document(conn, 'ut_example', 'doc0')
+            self.assertEqual(out['model_status'], dict(model_a=False))
+
+        with pool.acquire() as conn:
+            out = db.store_document(conn, 'ut_example', 'doc1', "anon", dict(
                 a=ut_template_table(a=[1]),
                 b=ut_template_table(print=["Hello"]),
             ))
@@ -183,3 +189,37 @@ class TestDB(RequiresPostgresql, unittest.TestCase):
                 model_a='',
                 model_b='B has\nSome lines\nHello\n',
             ))
+
+        with pool.acquire() as conn:
+            out = db.get_document(conn, 'ut_example', 'doc1')
+            self.assertEqual(out['model_status'], dict(model_a=False, model_b=False))
+
+        # Fill in model outputs, we change status
+        with pool.acquire() as conn:
+            with conn.cursor() as c:
+                c.execute('''
+                    UPDATE model_output
+                       SET output_path = '/not-here'
+                     WHERE model_name = 'model_a'
+                ''')
+            conn.commit()
+        with pool.acquire() as conn:
+            out = db.get_document(conn, 'ut_example', 'doc0')
+            self.assertEqual(out['model_status'], dict(model_a=True))
+        with pool.acquire() as conn:
+            out = db.get_document(conn, 'ut_example', 'doc1')
+            self.assertEqual(out['model_status'], dict(model_a=True, model_b=False))
+        with pool.acquire() as conn:
+            with conn.cursor() as c:
+                c.execute('''
+                    UPDATE model_output
+                       SET output_path = '/not-here'
+                     WHERE model_name = 'model_b'
+                ''')
+            conn.commit()
+        with pool.acquire() as conn:
+            out = db.get_document(conn, 'ut_example', 'doc0')
+            self.assertEqual(out['model_status'], dict(model_a=True))
+        with pool.acquire() as conn:
+            out = db.get_document(conn, 'ut_example', 'doc1')
+            self.assertEqual(out['model_status'], dict(model_a=True, model_b=True))

@@ -91,7 +91,13 @@ def store_document(c, template_name, document_name, author, content):
 def get_document(c, template_name, document_name):
     """Fetch a single document"""
     c.execute('''
-        SELECT version, author, content
+        SELECT version
+             , author
+             , content
+             , (SELECT JSONB_OBJECT_AGG(model_name, output_path IS NOT NULL)
+                  FROM JSONB_EACH_TEXT(input_hashes) ih
+                     , model_output mo
+                 WHERE mo.input_hash = ih.value) model_status
         FROM document
         WHERE template_name = %s
         AND document_name = %s
@@ -107,6 +113,7 @@ def get_document(c, template_name, document_name):
         version=x['version'],
         author=x['author'],
         content=x['content'],
+        model_status=x['model_status'] or {},
     )
 
 
