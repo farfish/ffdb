@@ -17,7 +17,7 @@ var dlmtool = [
                 '<br/><br/>' +
                 "Based on DLMtool package " +
                 "(Tom Carruthers and Adrian Hordyk (2016). DLMtool: Data-Limited " +
-                "Methods Toolkit. R package version 3.1. " +
+                "Methods Toolkit. R package " +
                 "<a href=\"https://CRAN.R-project.org/package=DLMtool\">https://CRAN.R-project.org/package=DLMtool</a>)." +
                 '<br/><br/>' +
                 'Once saved go to the <a href="/shiny/ffdb-dlmtool/">FFDB DLMtool page</a> to view results.',
@@ -29,7 +29,7 @@ var dlmtool = [
                 '<br/><br/>' +
                 "Basado en el paquete DLMtool " +
                 "(Tom Carruthers and Adrian Hordyk (2016). DLMtool: Data-Limited " +
-                "Methods Toolkit. R package version 3.1. " +
+                "Methods Toolkit. R package " +
                 "<a href=\"https://CRAN.R-project.org/package=DLMtool\">https://CRAN.R-project.org/package=DLMtool</a>)." +
                 '<br/><br/>' +
                 'Una vez guardado, vaya a la <a href="/shiny/ffdb-dlmtool/">página FFDB DLMtool</a> para ver los resultados.',
