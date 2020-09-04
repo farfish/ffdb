@@ -12,7 +12,7 @@
     "file-saver": "^2.0.2",
     "hodf": "github:shuttlethread/hodf",
     "jquery": "^3.5.0",
-    "papaparse": "^5.0.1",
+    "papaparse": "^5.2.0",
     "query-string": "5",
     "selectize": "^0.12.6",
     "tape-promise": "^4.0.0",
